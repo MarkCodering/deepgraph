@@ -147,12 +147,13 @@
         }
         textarea {
             min-height: 200px;
+            background-color: rgba(255, 255, 255, 0.8); /* More opaque white */
+            color: #000000; /* Set text color to black for readability on white */
         }
         textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
             outline: none;
             border-color: #ffffff;
             box-shadow: none;
-            color: #ffffff; /* Ensure text remains white on focus */
         }
 
         .file-upload-area {
@@ -1465,9 +1466,11 @@ Concept to summarize: ${nodeLabel}`;
             nodeInfoPopup.style.display = 'none'; // Directly set display to none
         });
 
+        // This event listener will now correctly close the popover when clicking outside it
+        // because the close button's z-index is higher and it correctly hides the popover.
         svg.on("click", () => {
-            if (nodeInfoPopup.style.display !== 'none') { // Check current display style
-                nodeInfoPopup.style.display = 'none'; // Directly set display to none
+            if (nodeInfoPopup.style.display !== 'none') {
+                nodeInfoPopup.style.display = 'none';
             }
         });
 
