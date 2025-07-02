@@ -1,96 +1,1293 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script defer src="/_vercel/insights/script.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
-    />
-    <title>Vercel HTML Starter</title>
-    <meta
-      name="description"
-      content="High-performance HTML based website template."
-    />
-  </head>
-  <body>
-    <h1>Vercel HTML Starter</h1>
-    <p>
-      This template is a simple, but powerful single
-      <code>index.html</code> file deployed to
-      <a href="https://vercel.com">Vercel</a>. When your site is deployed, all
-      static assets (like HTML, JavaScript, CSS, images, and more) are deployed
-      globally to every
-      <a href="https://vercel.com/docs/concepts/edge-network/overview"
-        >Vercel Edge Network</a
-      >
-      region.
-    </p>
-    <h2>Simple, privacy-friendly analytics</h2>
-    <p>
-      Want to understand your visitor traffic? Vercel Analytics gives you
-      first-party, privacy-friendly traffic analytics for your HTML site. This
-      template is already configured using the following script:
-    </p>
-    <pre><code>&lt;script defer src="/_vercel/insights/script.js"&gt;&lt;/script&gt;</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/analytics">Vercel Analytics</a>.
-    </p>
-    <h2>Integrated with git</h2>
-    <p>
-      Deploying updates to your site is as simple as
-      <code>git push</code> thanks to Vercel's advanced
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-      Support for GitHub, GitLab, Bitbucket is zero-configuration, and with the
-      flexible Vercel CLI and API, you can integrate with any tool possible.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-    </p>
-    <h2>Fast <code>gzip</code> compression</h2>
-    <p>
-      To help ensure the smallest possible file sizes for your static assets,
-      the Vercel Edge Network compresses files by default using
-      <code>gzip</code>. You can also optionally use
-      <code>brotli</code> compressesion if you prefer.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/edge-network/compression"
-        >compression</a
-      >.
-    </p>
-    <h2>Advanced routing configuration</h2>
-    <p>
-      Vercel gives you a variety of ways to configure the routing of your
-      website. For example, adding redirects, rewrites, or headers to your page.
-      While you can use <code>vercel.json</code> to define these through JSON,
-      you can also express your routing configuration as code using
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-    <p>
-      Middleware runs before the
-      <a href="https://vercel.com/docs/concepts/edge-network/caching"
-        >Vercel Edge Network Cache</a
-      >, so you can configure routing exactly as your application needs. For
-      example, this template uses <code>middleware.js</code> defined in the root
-      of the repository to add additional security headers to the site:
-    </p>
-    <pre><code>referrer-policy: origin-when-cross-origin
-strict-transport-security: max-age=31536000; includeSubDomains; preload
-x-content-type-options: nosniff
-x-dns-prefetch-control: on
-x-frame-options: DENY</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-  </body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DeepGraph</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- D3.js CDN -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <!-- PDF.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        /* Global Black & White Transparent Theme Styles */
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #000000; /* Theme: background */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 0;
+            margin: 0;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* Full-screen Graph Container */
+        #graphContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #000000; /* Full black for graph background */
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        /* D3.js Graph Elements (Black & White Transparent Theme) */
+        .link {
+            stroke: rgba(255, 255, 255, 0.2); /* White with transparency */
+            stroke-opacity: 0.6;
+            stroke-width: 1.5px; /* Thinner links */
+        }
+        .node circle {
+            stroke: rgba(255, 255, 255, 0.4); /* White transparent stroke */
+            stroke-width: 2px; /* Thinner stroke */
+            fill: rgba(255, 255, 255, 0.05); /* Very light transparent fill */
+            cursor: pointer; /* Indicate clickable */
+            transition: stroke 0.2s, fill 0.2s, filter 0.2s;
+            filter: none; /* Removed glow effect */
+        }
+        .node circle:hover {
+            stroke: rgba(255, 255, 255, 0.7); /* More opaque white on hover */
+            fill: rgba(255, 255, 255, 0.1); /* More opaque white on hover */
+            filter: none; /* Removed glow effect */
+        }
+        .node text {
+            font-size: 1rem;
+            text-anchor: middle;
+            fill: #ffffff; /* Theme: foreground */
+            pointer-events: none;
+            user-select: none;
+            font-weight: 600;
+            text-shadow: none; /* Removed glow effect */
+        }
+        .link-label {
+            font-size: 0.85rem;
+            fill: #d9d9da; /* Theme: default-800, light gray */
+            text-anchor: middle;
+            user-select: none;
+            font-weight: 500;
+        }
+        /* Arrowhead marker style */
+        marker#arrow {
+            fill: rgba(255, 255, 255, 0.2); /* Match link color with transparency */
+        }
+        #graphPlaceholder {
+            color: #d9d9da; /* Theme: default-800 */
+            text-shadow: none; /* Removed glow effect */
+        }
+
+        /* Floating UI Card (Input Modal) */
+        .floating-ui-card {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5); /* Black transparent */
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* Light border */
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 700px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            box-shadow: none; /* Removed glow effect */
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .floating-ui-card.hidden {
+            opacity: 0;
+            pointer-events: none;
+            transform: translate(-50%, -45%);
+        }
+
+        /* Header Styling */
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #ffffff; /* Theme: foreground */
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            margin-bottom: 10px;
+            text-shadow: none; /* Removed color glow */
+        }
+        .header p {
+            font-size: 1.1rem;
+            color: #d9d9da; /* Theme: default-800 */
+            margin-top: 15px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Textarea and Input Field Styles */
+        textarea, input[type="text"] {
+            min-height: 50px;
+            resize: vertical;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            padding: 18px;
+            border-radius: 10px;
+            font-size: 1rem;
+            line-height: 1.6;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+            color: #ffffff; /* Foreground for API key input */
+            background-color: rgba(0, 0, 0, 0.4); /* Dark transparent background */
+            width: 100%;
+            box-sizing: border-box;
+        }
+        textarea {
+            min-height: 200px;
+            background-color: rgba(255, 255, 255, 0.1); /* White transparent */
+            color: #ffffff; /* Foreground for text area text */
+        }
+        textarea:focus, input[type="text"]:focus {
+            outline: none;
+            border-color: #ffffff; /* White on focus */
+            box-shadow: none; /* Removed glow effect */
+        }
+
+        .file-upload-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            padding: 25px;
+            border: 2px dashed rgba(255, 255, 255, 0.3); /* White dashed border */
+            border-radius: 12px;
+            background-color: rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: none; /* Removed glow effect */
+        }
+        .file-upload-area:hover {
+            background-color: rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.5);
+            box-shadow: none; /* Removed glow effect */
+        }
+        .file-upload-area input[type="file"] {
+            display: none;
+        }
+        .file-upload-area label {
+            font-size: 1rem;
+            color: #ffffff; /* White text */
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .file-upload-area .file-icon {
+            font-size: 3rem;
+            color: #ffffff; /* White icon */
+        }
+        .file-upload-area #fileNameDisplay {
+            color: #d9d9da; /* Theme: default-800 */
+        }
+
+        .or-divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            color: #d9d9da; /* Theme: default-800 */
+            font-size: 0.9rem;
+            margin: 15px 0;
+        }
+        .or-divider::before,
+        .or-divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .or-divider:not(:empty)::before {
+            margin-right: 0.8em;
+        }
+        .or-divider:not(:empty)::after {
+            margin-left: 0.8em;
+        }
+
+        /* Buttons */
+        .main-button {
+            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900 to default-100, dark grayscale */
+            color: #ffffff;
+            padding: 16px 35px;
+            border-radius: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: none; /* Removed glow effect */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            z-index: 5;
+        }
+        .main-button.center-position {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .main-button.center-position:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            transform: translate(-50%, -50%) translateY(-3px);
+            box-shadow: none; /* Removed glow effect */
+        }
+        .main-button.center-position:active {
+            transform: translate(-50%, -50%) translateY(0);
+            box-shadow: none; /* Removed glow effect */
+        }
+
+        .main-button.top-left-position {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            transform: none;
+            box-shadow: none; /* Removed glow effect */
+            padding: 12px 25px;
+            font-size: 1rem;
+        }
+        .main-button.top-left-position:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
+            transform: translateY(-2px);
+            box-shadow: none; /* Removed glow effect */
+        }
+        .main-button.top-left-position:active {
+            transform: translateY(0);
+            box-shadow: none; /* Removed glow effect */
+        }
+        .main-button:disabled {
+            background-image: linear-gradient(to right, #656567, #404041); /* Theme: default-800 to default-900 */
+            cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.5; /* Theme: disabledOpacity */
+        }
+        .main-button.center-position:disabled {
+            transform: translate(-50%, -50%);
+        }
+        .main-button.top-left-position:disabled {
+            transform: none;
+        }
+
+        .loading-spinner {
+            border: 5px solid rgba(255, 255, 255, 0.5);
+            border-top: 5px solid #ffffff;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Message Box */
+        .message-box {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #18181b; /* Theme: content1 */
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: none; /* Removed glow effect */
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 25px;
+            align-items: center;
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border: 2px solid #3f3f46; /* Theme: content3 */
+        }
+        .message-box p {
+            font-size: 1.2rem;
+            color: #ffffff; /* Theme: foreground */
+            line-height: 1.6;
+        }
+        .message-box button {
+            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900, default-100 */
+            color: white;
+            padding: 12px 30px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: none; /* Removed glow effect */
+            text-transform: none;
+            letter-spacing: normal;
+            font-size: 1rem;
+        }
+        .message-box button:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            transform: translateY(-1px);
+            box-shadow: none; /* Removed glow effect */
+        }
+
+        /* Progress Bar Overlay */
+        #progressBarOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.9); /* Darker transparent overlay */
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            color: #ffffff; /* Theme: foreground */
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-shadow: none; /* Removed glow effect */
+        }
+        #progressBarContainer {
+            width: 80%;
+            max-width: 600px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.3); /* White transparent border */
+            box-shadow: none; /* Removed glow effect */
+        }
+        #progressBarFill {
+            height: 100%;
+            width: 0%;
+            background-image: linear-gradient(to right, #ffffff, #d9d9da); /* White to light gray gradient */
+            border-radius: 10px;
+            transition: width 0.1s linear;
+            box-shadow: none; /* Removed glow effect */
+        }
+        #progressText {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            color: #d9d9da; /* Theme: default-800 */
+        }
+
+        /* Chatbot Styles */
+        #chatBotContainer {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 350px;
+            height: 600px; /* Taller chatbot */
+            background-color: rgba(0, 0, 0, 0.7); /* Black transparent */
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); /* White transparent border */
+            border-radius: 15px;
+            box-shadow: none; /* Removed glow effect */
+            z-index: 20;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        #chatHeader {
+            background-color: rgba(255, 255, 255, 0.1); /* White transparent */
+            color: #ffffff; /* White text */
+            padding: 15px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* White transparent border */
+            text-align: center;
+        }
+        #chatHistory {
+            flex-grow: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            scrollbar-width: thin;
+            scrollbar-color: #ffffff #0d0d0e; /* White thumb, dark track */
+        }
+        #chatHistory::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chatHistory::-webkit-scrollbar-track {
+            background: #0d0d0e; /* Theme: default-50 */
+            border-radius: 10px;
+        }
+        #chatHistory::-webkit-scrollbar-thumb {
+            background-color: #ffffff; /* White thumb */
+            border-radius: 10px;
+            border: 2px solid #0d0d0e; /* Theme: default-50 */
+        }
+        .chat-message {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px 15px;
+            border-radius: 10px;
+            color: #ffffff; /* Theme: foreground */
+            font-size: 0.9rem;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+        .chat-message.user {
+            align-self: flex-end;
+            background-color: rgba(255, 255, 255, 0.15); /* Slightly more opaque white for user */
+            border-bottom-right-radius: 2px;
+        }
+        .chat-message.ai {
+            align-self: flex-start;
+            background-color: rgba(255, 255, 255, 0.1); /* White transparent for AI */
+            border-bottom-left-radius: 2px;
+        }
+        #chatInputContainer {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2); /* White transparent border */
+            gap: 10px;
+        }
+        #chatInput {
+            flex-grow: 1;
+            background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* White transparent border */
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #ffffff; /* Theme: foreground */
+            font-size: 0.95rem;
+        }
+        #chatInput:focus {
+            outline: none;
+            border-color: #ffffff; /* White on focus */
+            box-shadow: none; /* Removed glow effect */
+        }
+        #sendChatBtn {
+            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900, default-100 */
+            color: white;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: none; /* Removed glow effect */
+            font-size: 0.95rem;
+            text-transform: none;
+            letter-spacing: normal;
+            position: static;
+            transform: none;
+        }
+        #sendChatBtn:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            transform: translateY(-1px);
+            box-shadow: none; /* Removed glow effect */
+        }
+        #sendChatBtn:disabled {
+            background-image: linear-gradient(to right, #656567, #404041); /* Theme: default-800, default-900 */
+            cursor: not-allowed;
+            opacity: 0.5; /* Theme: disabledOpacity */
+            transform: none;
+            box-shadow: none;
+        }
+        .chat-loading-spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid #ffffff;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            animation: spin 1s linear infinite;
+        }
+
+        /* Node Info Pop-up Styles */
+        #nodeInfoPopup {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7); /* Black transparent */
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 15px;
+            padding: 20px;
+            width: 300px;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #ffffff;
+            z-index: 50; /* Above graph, below modals */
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            gap: 10px;
+            box-shadow: none; /* No glow */
+            transform: translate(-50%, -50%); /* Center based on its own size */
+            pointer-events: auto; /* Allow interaction */
+        }
+        #nodeInfoPopup h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        #nodeInfoPopup p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: #d9d9da;
+        }
+        #nodeInfoPopup .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        #nodeInfoPopup .close-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        #nodeInfoPopup .popup-loading-spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 10px auto;
+        }
+    </style>
+</head>
+<body>
+    <!-- Full-screen Knowledge Graph Background -->
+    <div id="graphContainer">
+        <svg id="knowledgeGraphSvg" class="w-full h-full absolute top-0 left-0"></svg>
+        <div id="graphPlaceholder" class="absolute inset-0 flex items-center justify-center text-2xl font-semibold p-4">
+            Your interactive knowledge graph will be visualized here.
+        </div>
+    </div>
+
+    <!-- Main UI Button (floating above graph) -->
+    <button id="openInputModalBtn" class="main-button center-position">
+        <span id="openButtonText">Generate Knowledge Graph</span>
+    </button>
+
+    <!-- Input Modal (hidden by default) -->
+    <div id="inputModal" class="floating-ui-card hidden">
+        <div class="header">
+            <h1>Input Your Research Report</h1>
+            <p>Paste your text or upload a PDF to begin generating your knowledge graph.</p>
+        </div>
+
+        <div class="mb-4">
+            <label for="apiKeyInput" class="block text-gray-700 text-lg font-semibold mb-3">Gemini API Key:</label>
+            <input type="text" id="apiKeyInput" class="w-full" placeholder="Enter your Gemini API Key here">
+        </div>
+
+        <div class="file-upload-area" id="fileUploadArea">
+            <span class="file-icon">📄</span>
+            <label for="pdfUploadInput">Click to Upload PDF</label>
+            <input type="file" id="pdfUploadInput" accept=".pdf">
+            <span id="fileNameDisplay" class="text-gray-600 text-base font-medium">No file chosen</span>
+            <div id="pdfLoadingSpinner" class="loading-spinner hidden"></div>
+        </div>
+
+        <div class="or-divider"><span>OR</span></div>
+
+        <div>
+            <label for="reportInput" class="block text-gray-700 text-lg font-semibold mb-3">Paste your research report here:</label>
+            <textarea id="reportInput" class="w-full" placeholder="E.g., 'The study investigated the effects of climate change on polar bear populations. Rising temperatures lead to melting ice caps, reducing hunting grounds for seals, their primary food source. This results in decreased polar bear health and reproductive rates.'"></textarea>
+        </div>
+
+        <button id="submitInputBtn" class="main-button">
+            <span id="submitButtonText">Generate Graph</span>
+            <div id="submitLoadingSpinner" class="loading-spinner hidden"></div>
+        </button>
+    </div>
+
+    <!-- Progress Bar Overlay -->
+    <div id="progressBarOverlay">
+        <p>Generating Knowledge Graph...</p>
+        <div id="progressBarContainer">
+            <div id="progressBarFill"></div>
+        </div>
+        <span id="progressText">0%</span>
+    </div>
+
+    <!-- Chatbot Container -->
+    <div id="chatBotContainer">
+        <div id="chatHeader">Chat with Graph AI</div>
+        <div id="chatHistory">
+            <div class="chat-message ai">Hello! Ask me anything about the knowledge graph.</div>
+        </div>
+        <div id="chatInputContainer">
+            <input type="text" id="chatInput" placeholder="Ask about the graph...">
+            <button id="sendChatBtn">
+                <span id="sendButtonText">Send</span>
+                <div id="chatLoadingSpinner" class="chat-loading-spinner hidden"></div>
+            </button>
+        </div>
+    </div>
+
+    <!-- Node Info Pop-up -->
+    <div id="nodeInfoPopup" class="hidden">
+        <button class="close-btn" id="closeNodeInfoPopup">&times;</button>
+        <h3 id="popupNodeTitle"></h3>
+        <div id="popupNodeSummary">
+            <div class="popup-loading-spinner"></div>
+        </div>
+    </div>
+
+    <!-- Message Box for alerts -->
+    <div id="messageBox" class="message-box">
+        <p id="messageBoxText"></p>
+        <button id="messageBoxOkBtn">OK</button>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+        // Global variables for Firebase
+        let app;
+        let auth;
+
+        // Set PDF.js worker source
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        // Global variables to store the current graph data for chatbot
+        let currentGraphNodes = [];
+        let currentGraphLinks = [];
+
+        // Function to show custom message box
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageBoxText = document.getElementById('messageBoxText');
+            messageBoxText.textContent = message;
+            messageBox.style.display = 'flex';
+        }
+
+        // Event listener for the OK button in the message box
+        document.getElementById('messageBoxOkBtn').addEventListener('click', () => {
+            document.getElementById('messageBox').style.display = 'none';
+        });
+
+        // Initialize Firebase and authenticate
+        async function initializeFirebase() {
+            try {
+                const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase config is missing or empty.");
+                    showMessageBox("Firebase configuration is missing. Please ensure the environment is set up correctly.");
+                    return;
+                }
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+
+                const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase initialized and authenticated.");
+            } catch (error) {
+                console.error("Error initializing Firebase or authenticating:", error);
+                showMessageBox("Failed to initialize Firebase or authenticate. Please try again later.");
+            }
+        }
+
+        initializeFirebase();
+
+        const reportInput = document.getElementById('reportInput');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const openInputModalBtn = document.getElementById('openInputModalBtn');
+        const inputModal = document.getElementById('inputModal');
+        const submitInputBtn = document.getElementById('submitInputBtn');
+        const submitButtonText = document.getElementById('submitButtonText');
+        const submitLoadingSpinner = document.getElementById('submitLoadingSpinner');
+        const graphContainer = document.getElementById('graphContainer');
+        const knowledgeGraphSvg = document.getElementById('knowledgeGraphSvg');
+        const graphPlaceholder = document.getElementById('graphPlaceholder');
+        const pdfUploadInput = document.getElementById('pdfUploadInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const pdfLoadingSpinner = document.getElementById('pdfLoadingSpinner');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const progressBarOverlay = document.getElementById('progressBarOverlay');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressText = document.getElementById('progressText');
+
+        // Chatbot elements
+        const chatBotContainer = document.getElementById('chatBotContainer');
+        const chatHistory = document.getElementById('chatHistory');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const sendButtonText = document.getElementById('sendButtonText');
+        const chatLoadingSpinner = document.getElementById('chatLoadingSpinner');
+
+        // Node Info Pop-up elements
+        const nodeInfoPopup = document.getElementById('nodeInfoPopup');
+        const closeNodeInfoPopupBtn = document.getElementById('closeNodeInfoPopup');
+        const popupNodeTitle = document.getElementById('popupNodeTitle');
+        const popupNodeSummary = document.getElementById('popupNodeSummary');
+
+        let progressInterval;
+
+        // Set initial SVG dimensions based on window size
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        // D3.js setup
+        const svg = d3.select("#knowledgeGraphSvg")
+            .attr("viewBox", [0, 0, width, height]);
+
+        // Define arrow marker for links
+        svg.append("defs").append("marker")
+            .attr("id", "arrow")
+            .attr("viewBox", "0 -5 10 10")
+            .attr("refX", 20) /* Adjusted refX for smaller arrow */
+            .attr("refY", 0)
+            .attr("markerWidth", 6) /* Smaller arrow */
+            .attr("markerHeight", 6) /* Smaller arrow */
+            .attr("orient", "auto")
+            .append("path")
+            .attr("d", "M0,-5L10,0L0,5")
+            .attr("class", "arrowhead"); /* Class for styling the arrowhead */
+
+        const g = svg.append("g"); // Group for zooming and panning
+
+        const simulation = d3.forceSimulation()
+            .force("link", d3.forceLink().id(d => d.id).distance(200)) /* Increased link distance to 200 */
+            .force("charge", d3.forceManyBody().strength(-500))
+            .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collision", d3.forceCollide().radius(30));
+
+        let link, node, linkLabel;
+
+        // Zoom and Pan functionality
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 8])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+        svg.call(zoom);
+
+        // Function to update SVG dimensions on resize
+        function resizeGraph() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            svg.attr("viewBox", [0, 0, width, height]);
+            simulation.force("center", d3.forceCenter(width / 2, height / 2));
+            simulation.alpha(0.3).restart();
+        }
+
+        // Listen for window resize events
+        window.addEventListener('resize', resizeGraph);
+
+        // Function to render the graph
+        function renderGraph(nodes, links) {
+            currentGraphNodes = nodes;
+            currentGraphLinks = links;
+
+            graphPlaceholder.classList.add('hidden');
+            g.selectAll("*").remove();
+
+            link = g.append("g")
+                .attr("class", "links")
+                .selectAll("line")
+                .data(links)
+                .enter().append("line")
+                .attr("class", "link")
+                .attr("marker-end", "url(#arrow)");
+
+            linkLabel = g.append("g")
+                .attr("class", "link-labels")
+                .selectAll("text")
+                .data(links)
+                .enter().append("text")
+                .attr("class", "link-label")
+                .text(d => d.type);
+
+            node = g.append("g")
+                .attr("class", "nodes")
+                .selectAll("g")
+                .data(nodes)
+                .enter().append("g")
+                .attr("class", "node")
+                .call(d3.drag()
+                    .on("start", dragstarted)
+                    .on("drag", dragged)
+                    .on("end", dragended));
+
+            node.append("circle")
+                .attr("r", 18)
+                .attr("fill", "rgba(255, 255, 255, 0.15)");
+
+            node.append("text")
+                .attr("dy", "0.35em")
+                .attr("y", -25)
+                .text(d => d.label);
+
+            // Add click event listener to nodes for pop-up
+            node.on("click", async (event, d) => {
+                event.stopPropagation(); // Prevent click from propagating to SVG background
+                await showNodeInfoPopup(d.label, d.x, d.y);
+            });
+
+            simulation
+                .nodes(nodes)
+                .on("tick", ticked);
+
+            simulation.force("link")
+                .links(links);
+
+            simulation.alpha(1).restart();
+
+            function ticked() {
+                link
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+
+                linkLabel
+                    .attr("x", d => (d.source.x + d.target.x) / 2)
+                    .attr("y", d => (d.source.y + d.target.y) / 2 - 10);
+
+                node
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+            }
+
+            setMainButtonPosition('top-left');
+            chatBotContainer.style.display = 'flex';
+        }
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+
+        function setMainButtonPosition(position) {
+            if (position === 'center') {
+                openInputModalBtn.classList.remove('top-left-position');
+                openInputModalBtn.classList.add('center-position');
+            } else if (position === 'top-left') {
+                openInputModalBtn.classList.remove('center-position');
+                openInputModalBtn.classList.add('top-left-position');
+            }
+        }
+
+        function setLoadingState(isLoading) {
+            submitInputBtn.disabled = isLoading;
+            if (isLoading) {
+                submitButtonText.classList.add('hidden');
+                submitLoadingSpinner.classList.remove('hidden');
+            } else {
+                submitButtonText.classList.remove('hidden');
+                submitLoadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function setPdfLoadingState(isLoading) {
+            pdfUploadInput.disabled = isLoading;
+            fileUploadArea.style.cursor = isLoading ? 'not-allowed' : 'pointer';
+            if (isLoading) {
+                pdfLoadingSpinner.classList.remove('hidden');
+                fileNameDisplay.textContent = 'Processing PDF...';
+            } else {
+                pdfLoadingSpinner.classList.add('hidden');
+            }
+        }
+
+        function showProgressBar() {
+            progressBarOverlay.style.display = 'flex';
+            progressBarFill.style.width = '0%';
+            progressText.textContent = '0%';
+            let progress = 0;
+            progressInterval = setInterval(() => {
+                if (progress < 95) {
+                    progress += Math.random() * 5;
+                    if (progress > 95) progress = 95;
+                    progressBarFill.style.width = `${progress}%`;
+                    progressText.textContent = `${Math.floor(progress)}%`;
+                }
+            }, 200);
+        }
+
+        function hideProgressBar() {
+            clearInterval(progressInterval);
+            progressBarFill.style.width = '100%';
+            progressText.textContent = '100%';
+            setTimeout(() => {
+                progressBarOverlay.style.display = 'none';
+            }, 500);
+        }
+
+        pdfUploadInput.addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (!file) {
+                fileNameDisplay.textContent = 'No file chosen';
+                return;
+            }
+
+            if (file.type !== 'application/pdf') {
+                showMessageBox("Please upload a valid PDF file.");
+                fileNameDisplay.textContent = 'No file chosen';
+                pdfUploadInput.value = '';
+                return;
+            }
+
+            fileNameDisplay.textContent = file.name;
+            setPdfLoadingState(true);
+            reportInput.value = '';
+
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const pdfData = new Uint8Array(e.target.result);
+                    const loadingTask = pdfjsLib.getDocument({ data: pdfData });
+                    const pdf = await loadingTask.promise;
+                    let fullText = '';
+
+                    for (let i = 1; i <= pdf.numPages; i++) {
+                        const page = await pdf.getPage(i);
+                        const textContent = await page.getTextContent();
+                        const pageText = textContent.items.map(item => item.str).join(' ');
+                        fullText += pageText + '\n';
+                    }
+                    reportInput.value = fullText.trim();
+                    showMessageBox("PDF content loaded successfully into the text area. Click 'Generate Graph' to visualize.");
+                } catch (error) {
+                    console.error("Error processing PDF:", error);
+                    showMessageBox("Failed to process PDF. It might be corrupted or in an unsupported format.");
+                    reportInput.value = '';
+                } finally {
+                    setPdfLoadingState(false);
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        fileUploadArea.addEventListener('click', () => {
+            if (!pdfUploadInput.disabled) {
+                pdfUploadInput.click();
+            }
+        });
+
+        openInputModalBtn.addEventListener('click', () => {
+            inputModal.classList.remove('hidden');
+        });
+
+        submitInputBtn.addEventListener('click', async () => {
+            const reportText = reportInput.value.trim();
+            const userApiKey = apiKeyInput.value.trim();
+
+            if (!userApiKey) {
+                showMessageBox("Please enter your Gemini API Key.");
+                return;
+            }
+
+            if (!reportText) {
+                showMessageBox("Please enter a research report or upload a PDF to generate the knowledge graph.");
+                return;
+            }
+
+            setLoadingState(true);
+            inputModal.classList.add('hidden');
+            showProgressBar();
+
+            try {
+                let chatHistory = [];
+                const prompt = `Analyze the following research report and extract key concepts (nodes) and their relationships (links). Represent the output as a JSON object with two arrays: 'nodes' and 'links'.
+Each node should have an 'id' (unique identifier, e.g., a simplified concept name) and a 'label' (the full concept name).
+Each link should have a 'source' (id of the source node), a 'target' (id of the target node), and a 'type' (description of the relationship, e.g., 'explains', 'is_a', 'causes', 'has_property', 'impacts', 'leads_to', 'associated_with', 'part_of').
+Ensure the relationships are meaningful and reflect the core ideas and connections within the text. Focus on scientific or technical concepts and their interdependencies.
+
+Research Report:
+${reportText}`;
+
+                chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                const payload = {
+                    contents: chatHistory,
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                        responseSchema: {
+                            type: "OBJECT",
+                            properties: {
+                                "nodes": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "id": { "type": "STRING" },
+                                            "label": { "type": "STRING" }
+                                        },
+                                        "propertyOrdering": ["id", "label"]
+                                    }
+                                },
+                                "links": {
+                                    "type": "ARRAY",
+                                    "items": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "source": { "type": "STRING" },
+                                            "target": { "type": "STRING" },
+                                            "type": { "type": "STRING" }
+                                        },
+                                        "propertyOrdering": ["source", "target", "type"]
+                                    }
+                                }
+                            },
+                            "propertyOrdering": ["nodes", "links"]
+                        }
+                    }
+                };
+
+                const apiKey = userApiKey;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    const jsonString = result.candidates[0].content.parts[0].text;
+                    const graphData = JSON.parse(jsonString);
+
+                    if (graphData.nodes && graphData.links) {
+                        renderGraph(graphData.nodes, graphData.links);
+                    } else {
+                        showMessageBox("The AI could not generate a valid knowledge graph from the provided text. This might happen with very short or unstructured text.");
+                        graphPlaceholder.classList.remove('hidden');
+                    }
+                } else {
+                    showMessageBox("Failed to get a response from the AI. Please check your API key or try again.");
+                    graphPlaceholder.classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Error generating knowledge graph:", error);
+                showMessageBox("An error occurred while generating the knowledge graph. Please check your input and API key, then try again.");
+                graphPlaceholder.classList.remove('hidden');
+            } finally {
+                setLoadingState(false);
+                hideProgressBar();
+            }
+        });
+
+        sendChatBtn.addEventListener('click', async () => {
+            const userQuestion = chatInput.value.trim();
+            if (!userQuestion) {
+                showMessageBox("Please type a question for the chatbot.");
+                return;
+            }
+
+            if (currentGraphNodes.length === 0) {
+                showMessageBox("Please generate a knowledge graph first before asking questions.");
+                chatInput.value = '';
+                return;
+            }
+
+            const userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('chat-message', 'user');
+            userMessageDiv.textContent = userQuestion;
+            chatHistory.appendChild(userMessageDiv);
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            chatInput.value = '';
+            sendChatBtn.disabled = true;
+            sendButtonText.classList.add('hidden');
+            chatLoadingSpinner.classList.remove('hidden');
+
+            try {
+                const userApiKey = apiKeyInput.value.trim();
+                if (!userApiKey) {
+                    showMessageBox("Please enter your Gemini API Key in the input modal to use the chatbot.");
+                    sendChatBtn.disabled = false;
+                    sendButtonText.classList.remove('hidden');
+                    chatLoadingSpinner.classList.add('hidden');
+                    return;
+                }
+
+                const graphJson = JSON.stringify({ nodes: currentGraphNodes, links: currentGraphLinks });
+
+                let chatHistoryForAI = [];
+                const promptForChatbot = `You are a knowledge graph analysis AI. Your task is to answer questions based *only* on the provided knowledge graph data. If the information is not present in the graph, state that you cannot answer the question based on the provided graph.
+
+Knowledge Graph Data (JSON):
+${graphJson}
+
+User Question: ${userQuestion}`;
+
+                chatHistoryForAI.push({ role: "user", parts: [{ text: promptForChatbot }] });
+                const payload = {
+                    contents: chatHistoryForAI
+                };
+
+                const apiKey = userApiKey;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                let aiResponseText = "Could not get a response from the AI.";
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    aiResponseText = result.candidates[0].content.parts[0].text;
+                }
+
+                const aiMessageDiv = document.createElement('div');
+                aiMessageDiv.classList.add('chat-message', 'ai');
+                aiMessageDiv.textContent = aiResponseText;
+                chatHistory.appendChild(aiMessageDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            } catch (error) {
+                console.error("Error communicating with chatbot AI:", error);
+                const errorMessageDiv = document.createElement('div');
+                errorMessageDiv.classList.add('chat-message', 'ai');
+                errorMessageDiv.textContent = "Error: Failed to get a response from the AI. Please check your API key and network connection.";
+                chatHistory.appendChild(errorMessageDiv);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            } finally {
+                sendChatBtn.disabled = false;
+                sendButtonText.classList.remove('hidden');
+                chatLoadingSpinner.classList.add('hidden');
+            }
+        });
+
+        chatInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !sendChatBtn.disabled) {
+                event.preventDefault();
+                sendChatBtn.click();
+            }
+        });
+
+        // Node Info Pop-up functionality
+        async function showNodeInfoPopup(nodeLabel, nodeX, nodeY) {
+            nodeInfoPopup.classList.remove('hidden');
+            popupNodeTitle.textContent = nodeLabel;
+            popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>'; // Show spinner
+
+            // Position the pop-up near the clicked node
+            // Adjust for scrolling and centering
+            const graphRect = graphContainer.getBoundingClientRect();
+            const svgRect = knowledgeGraphSvg.getBoundingClientRect();
+            const currentTransform = d3.zoomTransform(svg.node());
+
+            // Calculate node's position relative to the viewport
+            const transformedX = graphRect.left + currentTransform.applyX(nodeX);
+            const transformedY = graphRect.top + currentTransform.applyY(nodeY);
+
+            // Set initial position (can be refined for better placement relative to node)
+            nodeInfoPopup.style.left = `${transformedX}px`;
+            nodeInfoPopup.style.top = `${transformedY}px`;
+
+            // Adjust position to keep it within viewport if it goes off-screen
+            const popupRect = nodeInfoPopup.getBoundingClientRect();
+            if (popupRect.right > window.innerWidth - 20) {
+                nodeInfoPopup.style.left = `${window.innerWidth - popupRect.width - 20}px`;
+            }
+            if (popupRect.bottom > window.innerHeight - 20) {
+                nodeInfoPopup.style.top = `${window.innerHeight - popupRect.height - 20}px`;
+            }
+            if (popupRect.left < 20) {
+                nodeInfoPopup.style.left = `20px`;
+            }
+            if (popupRect.top < 20) {
+                nodeInfoPopup.style.top = `20px`;
+            }
+
+
+            try {
+                const userApiKey = apiKeyInput.value.trim();
+                if (!userApiKey) {
+                    popupNodeSummary.textContent = "Please enter your Gemini API Key in the input modal to get node information.";
+                    return;
+                }
+
+                const graphJson = JSON.stringify({ nodes: currentGraphNodes, links: currentGraphLinks });
+
+                let chatHistoryForAI = [];
+                const promptForSummary = `You are a knowledge graph analysis AI. Provide a concise summary (2-3 sentences) about the concept "${nodeLabel}" based *only* on the provided knowledge graph data. If the information is not directly available or inferable from the graph, state that.
+
+Knowledge Graph Data (JSON):
+${graphJson}
+
+Concept to summarize: ${nodeLabel}`;
+
+                chatHistoryForAI.push({ role: "user", parts: [{ text: promptForSummary }] });
+                const payload = {
+                    contents: chatHistoryForAI
+                };
+
+                const apiKey = userApiKey;
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+
+                let summaryText = "Could not retrieve summary from AI.";
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    summaryText = result.candidates[0].content.parts[0].text;
+                }
+                popupNodeSummary.textContent = summaryText;
+
+            } catch (error) {
+                console.error("Error fetching node summary:", error);
+                popupNodeSummary.textContent = "Failed to load summary. Check API key or network.";
+            }
+        }
+
+        closeNodeInfoPopupBtn.addEventListener('click', () => {
+            nodeInfoPopup.classList.add('hidden');
+        });
+
+        // Close pop-up if clicked outside (on SVG background)
+        svg.on("click", () => {
+            if (!nodeInfoPopup.classList.contains('hidden')) {
+                nodeInfoPopup.classList.add('hidden');
+            }
+        });
+
+
+        setMainButtonPosition('center');
+        resizeGraph();
+    </script>
+</body>
 </html>
