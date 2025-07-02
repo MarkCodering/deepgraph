@@ -131,7 +131,7 @@
         }
 
         /* Textarea and Input Field Styles */
-        textarea, input[type="text"] {
+        textarea, input[type="text"], input[type="email"], input[type="password"] {
             min-height: 50px;
             resize: vertical;
             border: 2px solid rgba(255, 255, 255, 0.1);
@@ -140,20 +140,20 @@
             font-size: 1rem;
             line-height: 1.6;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
-            color: #ffffff; /* Foreground for API key input */
-            background-color: rgba(0, 0, 0, 0.4); /* Dark transparent background */
+            color: #ffffff;
+            background-color: rgba(0, 0, 0, 0.4);
             width: 100%;
             box-sizing: border-box;
         }
         textarea {
             min-height: 200px;
-            background-color: rgba(255, 255, 255, 0.1); /* White transparent */
-            color: #ffffff; /* Foreground for text area text */
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
         }
-        textarea:focus, input[type="text"]:focus {
+        textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
             outline: none;
-            border-color: #ffffff; /* White on focus */
-            box-shadow: none; /* Removed glow effect */
+            border-color: #ffffff;
+            box-shadow: none;
         }
 
         .file-upload-area {
@@ -162,40 +162,40 @@
             align-items: center;
             gap: 15px;
             padding: 25px;
-            border: 2px dashed rgba(255, 255, 255, 0.3); /* White dashed border */
+            border: 2px dashed rgba(255, 255, 255, 0.3);
             border-radius: 12px;
             background-color: rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         .file-upload-area:hover {
             background-color: rgba(0, 0, 0, 0.4);
             border-color: rgba(255, 255, 255, 0.5);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         .file-upload-area input[type="file"] {
             display: none;
         }
         .file-upload-area label {
             font-size: 1rem;
-            color: #ffffff; /* White text */
+            color: #ffffff;
             font-weight: 700;
             cursor: pointer;
         }
         .file-upload-area .file-icon {
             font-size: 3rem;
-            color: #ffffff; /* White icon */
+            color: #ffffff;
         }
         .file-upload-area #fileNameDisplay {
-            color: #d9d9da; /* Theme: default-800 */
+            color: #d9d9da;
         }
 
         .or-divider {
             display: flex;
             align-items: center;
             text-align: center;
-            color: #d9d9da; /* Theme: default-800 */
+            color: #d9d9da;
             font-size: 0.9rem;
             margin: 15px 0;
         }
@@ -214,14 +214,14 @@
 
         /* Buttons */
         .main-button {
-            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900 to default-100, dark grayscale */
+            background-image: linear-gradient(to right, #404041, #19191c);
             color: #ffffff;
             padding: 16px 35px;
             border-radius: 12px;
             font-weight: 800;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -238,13 +238,13 @@
             transform: translate(-50%, -50%);
         }
         .main-button.center-position:hover {
-            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
             transform: translate(-50%, -50%) translateY(-3px);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         .main-button.center-position:active {
             transform: translate(-50%, -50%) translateY(0);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
 
         .main-button.top-left-position {
@@ -252,24 +252,24 @@
             top: 20px;
             left: 20px;
             transform: none;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             padding: 12px 25px;
             font-size: 1rem;
         }
         .main-button.top-left-position:hover {
             background-image: linear-gradient(to right, #19191c, #0d0d0e);
             transform: translateY(-2px);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         .main-button.top-left-position:active {
             transform: translateY(0);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         .main-button:disabled {
-            background-image: linear-gradient(to right, #656567, #404041); /* Theme: default-800 to default-900 */
+            background-image: linear-gradient(to right, #656567, #404041);
             cursor: not-allowed;
             box-shadow: none;
-            opacity: 0.5; /* Theme: disabledOpacity */
+            opacity: 0.5;
         }
         .main-button.center-position:disabled {
             transform: translate(-50%, -50%);
@@ -297,10 +297,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: #18181b; /* Theme: content1 */
+            background-color: #18181b;
             padding: 35px;
             border-radius: 16px;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             z-index: 1000;
             display: none;
             flex-direction: column;
@@ -309,30 +309,30 @@
             text-align: center;
             max-width: 500px;
             width: 90%;
-            border: 2px solid #3f3f46; /* Theme: content3 */
+            border: 2px solid #3f3f46;
         }
         .message-box p {
             font-size: 1.2rem;
-            color: #ffffff; /* Theme: foreground */
+            color: #ffffff;
             line-height: 1.6;
         }
         .message-box button {
-            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900, default-100 */
+            background-image: linear-gradient(to right, #404041, #19191c);
             color: white;
             padding: 12px 30px;
             border-radius: 10px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             text-transform: none;
             letter-spacing: normal;
             font-size: 1rem;
         }
         .message-box button:hover {
-            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
             transform: translateY(-1px);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
 
         /* Progress Bar Overlay */
@@ -342,7 +342,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: rgba(0, 0, 0, 0.9); /* Darker transparent overlay */
+            background-color: rgba(0, 0, 0, 0.9);
             backdrop-filter: blur(8px);
             z-index: 999;
             display: none;
@@ -350,10 +350,10 @@
             justify-content: center;
             align-items: center;
             gap: 30px;
-            color: #ffffff; /* Theme: foreground */
+            color: #ffffff;
             font-size: 1.5rem;
             font-weight: 600;
-            text-shadow: none; /* Removed glow effect */
+            text-shadow: none;
         }
         #progressBarContainer {
             width: 80%;
@@ -362,21 +362,21 @@
             border-radius: 10px;
             height: 20px;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.3); /* White transparent border */
-            box-shadow: none; /* Removed glow effect */
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: none;
         }
         #progressBarFill {
             height: 100%;
             width: 0%;
-            background-image: linear-gradient(to right, #ffffff, #d9d9da); /* White to light gray gradient */
+            background-image: linear-gradient(to right, #ffffff, #d9d9da);
             border-radius: 10px;
             transition: width 0.1s linear;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         #progressText {
             margin-top: 10px;
             font-size: 1.1rem;
-            color: #d9d9da; /* Theme: default-800 */
+            color: #d9d9da;
         }
 
         /* Chatbot Styles */
@@ -385,28 +385,27 @@
             bottom: 20px;
             right: 20px;
             width: 350px;
-            height: 600px; /* Taller chatbot */
-            background-color: rgba(0, 0, 0, 0.7); /* Black transparent */
+            height: 600px;
+            background-color: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1); /* White transparent border */
+            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 15px;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             z-index: 20;
             display: none;
             flex-direction: column;
             overflow: hidden;
-            /* Draggable styles */
             cursor: grab;
         }
         #chatHeader {
-            background-color: rgba(255, 255, 255, 0.1); /* White transparent */
-            color: #ffffff; /* White text */
+            background-color: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
             padding: 15px;
             font-weight: 700;
             font-size: 1.1rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* White transparent border */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             text-align: center;
-            cursor: grab; /* Indicate draggable */
+            cursor: grab;
         }
         #chatHistory {
             flex-grow: 1;
@@ -416,68 +415,68 @@
             flex-direction: column;
             gap: 10px;
             scrollbar-width: thin;
-            scrollbar-color: #ffffff #0d0d0e; /* White thumb, dark track */
+            scrollbar-color: #ffffff #0d0d0e;
         }
         #chatHistory::-webkit-scrollbar {
             width: 8px;
         }
         #chatHistory::-webkit-scrollbar-track {
-            background: #0d0d0e; /* Theme: default-50 */
+            background: #0d0d0e;
             border-radius: 10px;
         }
         #chatHistory::-webkit-scrollbar-thumb {
-            background-color: #ffffff; /* White thumb */
+            background-color: #ffffff;
             border-radius: 10px;
-            border: 2px solid #0d0d0e; /* Theme: default-50 */
+            border: 2px solid #0d0d0e;
         }
         .chat-message {
             background-color: rgba(255, 255, 255, 0.1);
             padding: 10px 15px;
             border-radius: 10px;
-            color: #ffffff; /* Theme: foreground */
+            color: #ffffff;
             font-size: 0.9rem;
             line-height: 1.4;
             word-wrap: break-word;
         }
         .chat-message.user {
             align-self: flex-end;
-            background-color: rgba(255, 255, 255, 0.15); /* Slightly more opaque white for user */
+            background-color: rgba(255, 255, 255, 0.15);
             border-bottom-right-radius: 2px;
         }
         .chat-message.ai {
             align-self: flex-start;
-            background-color: rgba(255, 255, 255, 0.1); /* White transparent for AI */
+            background-color: rgba(255, 255, 255, 0.1);
             border-bottom-left-radius: 2px;
         }
         #chatInputContainer {
             display: flex;
             padding: 15px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2); /* White transparent border */
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
             gap: 10px;
         }
         #chatInput {
             flex-grow: 1;
-            background-color: rgba(0, 0, 0, 0.5); /* Dark transparent background */
-            border: 1px solid rgba(255, 255, 255, 0.3); /* White transparent border */
+            background-color: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             padding: 10px 15px;
-            color: #ffffff; /* Theme: foreground */
+            color: #ffffff;
             font-size: 0.95rem;
         }
         #chatInput:focus {
             outline: none;
-            border-color: #ffffff; /* White on focus */
-            box-shadow: none; /* Removed glow effect */
+            border-color: #ffffff;
+            box-shadow: none;
         }
         #sendChatBtn {
-            background-image: linear-gradient(to right, #404041, #19191c); /* Theme: default-900, default-100 */
+            background-image: linear-gradient(to right, #404041, #19191c);
             color: white;
             padding: 10px 15px;
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
             font-size: 0.95rem;
             text-transform: none;
             letter-spacing: normal;
@@ -485,14 +484,14 @@
             transform: none;
         }
         #sendChatBtn:hover {
-            background-image: linear-gradient(to right, #19191c, #0d0d0e); /* Darker grayscale on hover */
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
             transform: translateY(-1px);
-            box-shadow: none; /* Removed glow effect */
+            box-shadow: none;
         }
         #sendChatBtn:disabled {
-            background-image: linear-gradient(to right, #656567, #404041); /* Theme: default-800, default-900 */
+            background-image: linear-gradient(to right, #656567, #404041);
             cursor: not-allowed;
-            opacity: 0.5; /* Theme: disabledOpacity */
+            opacity: 0.5;
             transform: none;
             box-shadow: none;
         }
@@ -508,7 +507,7 @@
         /* Node Info Pop-up Styles */
         #nodeInfoPopup {
             position: absolute;
-            background-color: rgba(0, 0, 0, 0.7); /* Black transparent */
+            background-color: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 15px;
@@ -517,13 +516,13 @@
             max-height: 400px;
             overflow-y: auto;
             color: #ffffff;
-            z-index: 50; /* Above graph, below modals */
-            display: none; /* Hidden by default */
+            z-index: 50;
+            display: none;
             flex-direction: column;
             gap: 10px;
-            box-shadow: none; /* No glow */
-            transform: translate(-50%, -50%); /* Center based on its own size */
-            pointer-events: auto; /* Allow interaction */
+            box-shadow: none;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
         }
         #nodeInfoPopup h3 {
             font-size: 1.4rem;
@@ -562,9 +561,132 @@
             animation: spin 1s linear infinite;
             margin: 10px auto;
         }
+        /* Auth Form specific styles */
+        .auth-form-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .auth-form-container button {
+            background-image: linear-gradient(to right, #404041, #19191c);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: none;
+            text-transform: uppercase;
+            font-size: 1rem;
+            position: static; /* Override main-button absolute positioning */
+            transform: none; /* Override main-button transform */
+        }
+        .auth-form-container button:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
+            transform: translateY(-1px);
+        }
+        .auth-form-container button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .auth-toggle-link {
+            color: #d9d9da;
+            font-size: 0.9rem;
+            text-align: center;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+        .user-info-display {
+            color: #ffffff;
+            font-size: 1rem;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sign-out-button {
+            background-image: linear-gradient(to right, #744e11, #4a320b); /* Warning theme colors */
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: none;
+            font-size: 0.9rem;
+            text-transform: none;
+            letter-spacing: normal;
+            margin-top: 10px;
+        }
+        .sign-out-button:hover {
+            background-image: linear-gradient(to right, #4a320b, #2a1a05);
+            transform: translateY(-1px);
+        }
+
+        /* Welcome Portal Styles */
+        #welcomePortal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.95); /* Nearly black opaque background */
+            z-index: 100; /* Above everything else initially */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff;
+            text-align: center;
+            gap: 40px;
+            transition: opacity 0.5s ease;
+        }
+        #welcomePortal.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        #welcomePortal h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            letter-spacing: -0.05em;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+        #welcomePortal p {
+            font-size: 1.5rem;
+            max-width: 800px;
+            line-height: 1.6;
+            color: #d4d4d8; /* Theme: default-500 */
+        }
+        #getStartedBtn {
+            background-image: linear-gradient(to right, #404041, #19191c);
+            color: white;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-weight: 800;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+        #getStartedBtn:hover {
+            background-image: linear-gradient(to right, #19191c, #0d0d0e);
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+        }
+        #getStartedBtn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
+    <!-- Welcome Portal -->
+    <div id="welcomePortal">
+        <h1>Welcome to DeepGraph</h1>
+        <p>Transform complex research reports into interactive knowledge graphs and chat with AI to explore insights.</p>
+        <button id="getStartedBtn">Get Started</button>
+    </div>
+
     <div id="graphContainer">
         <svg id="knowledgeGraphSvg" class="w-full h-full absolute top-0 left-0"></svg>
         <div id="graphPlaceholder" class="absolute inset-0 flex items-center justify-center text-2xl font-semibold p-4">
@@ -572,40 +694,43 @@
         </div>
     </div>
 
-    <button id="openInputModalBtn" class="main-button center-position">
+    <button id="openInputModalBtn" class="main-button center-position hidden">
         <span id="openButtonText">Generate Knowledge Graph</span>
     </button>
 
     <div id="inputModal" class="floating-ui-card hidden">
         <div class="header">
-            <h1>Input Your Research Report</h1>
-            <p>Paste your text or upload a PDF to begin generating your knowledge graph.</p>
+            <h1 id="modalTitle">Generate Knowledge Graph</h1>
+            <p id="modalSubtitle">Enter your report details below.</p>
         </div>
 
-        <div class="mb-4">
-            <label for="apiKeyInput" class="block text-gray-700 text-lg font-semibold mb-3">Gemini API Key:</label>
-            <input type="text" id="apiKeyInput" class="w-full" placeholder="Enter your Gemini API Key here">
+        <!-- Report Input Section (always visible now) -->
+        <div id="reportInputSection">
+            <div class="mb-4 mt-4">
+                <label for="apiKeyInput" class="block text-gray-700 text-lg font-semibold mb-3">Gemini API Key:</label>
+                <input type="text" id="apiKeyInput" class="w-full" placeholder="Enter your Gemini API Key here">
+            </div>
+
+            <div class="file-upload-area" id="fileUploadArea">
+                <span class="file-icon">📄</span>
+                <label for="pdfUploadInput">Click to Upload PDF</label>
+                <input type="file" id="pdfUploadInput" accept=".pdf">
+                <span id="fileNameDisplay" class="text-gray-600 text-base font-medium">No file chosen</span>
+                <div id="pdfLoadingSpinner" class="loading-spinner hidden"></div>
+            </div>
+
+            <div class="or-divider"><span>OR</span></div>
+
+            <div>
+                <label for="reportInput" class="block text-gray-700 text-lg font-semibold mb-3">Paste your research report here:</label>
+                <textarea id="reportInput" class="w-full" placeholder="E.g., 'The study investigated the effects of climate change on polar bear populations. Rising temperatures lead to melting ice caps, reducing hunting grounds for seals, their primary food source. This results in decreased polar bear health and reproductive rates.'"></textarea>
+            </div>
+
+            <button id="submitInputBtn" class="main-button">
+                <span id="submitButtonText">Generate Graph</span>
+                <div id="submitLoadingSpinner" class="loading-spinner hidden"></div>
+            </button>
         </div>
-
-        <div class="file-upload-area" id="fileUploadArea">
-            <span class="file-icon">📄</span>
-            <label for="pdfUploadInput">Click to Upload PDF</label>
-            <input type="file" id="pdfUploadInput" accept=".pdf">
-            <span id="fileNameDisplay" class="text-gray-600 text-base font-medium">No file chosen</span>
-            <div id="pdfLoadingSpinner" class="loading-spinner hidden"></div>
-        </div>
-
-        <div class="or-divider"><span>OR</span></div>
-
-        <div>
-            <label for="reportInput" class="block text-gray-700 text-lg font-semibold mb-3">Paste your research report here:</label>
-            <textarea id="reportInput" class="w-full" placeholder="E.g., 'The study investigated the effects of climate change on polar bear populations. Rising temperatures lead to melting ice caps, reducing hunting grounds for seals, their primary food source. This results in decreased polar bear health and reproductive rates.'"></textarea>
-        </div>
-
-        <button id="submitInputBtn" class="main-button">
-            <span id="submitButtonText">Generate Graph</span>
-            <div id="submitLoadingSpinner" class="loading-spinner hidden"></div>
-        </button>
     </div>
 
     <div id="progressBarOverlay">
@@ -647,7 +772,13 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        // Global variables for Firebase
+        // Supabase configuration (Removed as requested)
+        // const SUPABASE_URL = 'https://ncszuxpmehuxoploebna.supabase.co';
+        // const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5jc3p1eHBtZWh1eG9wbG9lYm5hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0NTA5NTMsImV4cCI6MjA2NzAyNjk1M30.2Pq_Vp5r1824fByOC71-j-dcF4fYERs4k4pzjtQ_Buk';
+        // Initialize Supabase client (Removed as requested)
+        // const supabase = Supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Global variables for Firebase (Canvas environment auth)
         let app;
         let auth;
 
@@ -658,20 +789,71 @@
         let currentGraphNodes = [];
         let currentGraphLinks = [];
 
-        // Function to show custom message box
-        function showMessageBox(message) {
-            const messageBox = document.getElementById('messageBox');
-            const messageBoxText = document.getElementById('messageBoxText');
-            messageBoxText.textContent = message;
-            messageBox.style.display = 'flex';
-        }
+        // UI elements
+        const welcomePortal = document.getElementById('welcomePortal');
+        const getStartedBtn = document.getElementById('getStartedBtn');
 
-        // Event listener for the OK button in the message box
-        document.getElementById('messageBoxOkBtn').addEventListener('click', () => {
-            document.getElementById('messageBox').style.display = 'none';
-        });
+        const openInputModalBtn = document.getElementById('openInputModalBtn');
+        const inputModal = document.getElementById('inputModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalSubtitle = document.getElementById('modalSubtitle');
 
-        // Initialize Firebase and authenticate
+        // Auth elements (Removed from HTML, and corresponding JS references updated)
+        // const authSection = document.getElementById('authSection');
+        // const signInForm = document.getElementById('signInForm');
+        // const signInEmail = document.getElementById('signInEmail');
+        // const signInPassword = document.getElementById('signInPassword');
+        // const signInBtn = document.getElementById('signInBtn');
+        // const showSignUpLink = document.getElementById('showSignUp');
+        // const signUpForm = document.getElementById('signUpForm');
+        // const signUpEmail = document.getElementById('signUpEmail');
+        // const signUpPassword = document.getElementById('signUpPassword');
+        // const signUpBtn = document.getElementById('signUpBtn');
+        // const showSignInLink = document.getElementById('showSignIn');
+        // const userInfoDisplay = document.getElementById('userInfoDisplay');
+        // const signOutBtn = document.getElementById('signOutBtn');
+
+        const reportInputSection = document.getElementById('reportInputSection'); // Now always visible
+
+        const reportInput = document.getElementById('reportInput');
+        const apiKeyInput = document.getElementById('apiKeyInput');
+        const submitInputBtn = document.getElementById('submitInputBtn');
+        const submitButtonText = document.getElementById('submitButtonText');
+        const submitLoadingSpinner = document.getElementById('submitLoadingSpinner');
+        const graphContainer = document.getElementById('graphContainer');
+        const knowledgeGraphSvg = document.getElementById('knowledgeGraphSvg');
+        const graphPlaceholder = document.getElementById('graphPlaceholder');
+        const pdfUploadInput = document.getElementById('pdfUploadInput');
+        const fileNameDisplay = document.getElementById('fileNameDisplay');
+        const pdfLoadingSpinner = document.getElementById('pdfLoadingSpinner');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const progressBarOverlay = document.getElementById('progressBarOverlay');
+        const progressBarFill = document.getElementById('progressBarFill');
+        const progressText = document.getElementById('progressText');
+
+        // Chatbot elements
+        const chatBotContainer = document.getElementById('chatBotContainer');
+        const chatHeader = document.getElementById('chatHeader');
+        const chatHistory = document.getElementById('chatHistory');
+        const chatInput = document.getElementById('chatInput');
+        const sendChatBtn = document.getElementById('sendChatBtn');
+        const sendButtonText = document.getElementById('sendButtonText');
+        const chatLoadingSpinner = document.getElementById('chatLoadingSpinner');
+
+        // Node Info Pop-up elements
+        const nodeInfoPopup = document.getElementById('nodeInfoPopup');
+        const closeNodeInfoPopupBtn = document.getElementById('closeNodeInfoPopup');
+        const popupNodeTitle = document.getElementById('popupNodeTitle');
+        const popupNodeSummary = document.getElementById('popupNodeSummary');
+
+        let progressInterval;
+        let isDraggingChatbot = false;
+        let chatbotOffsetX, chatbotOffsetY;
+
+        let width = window.innerWidth;
+        let height = window.innerHeight;
+
+        // --- Firebase Initialization (for Canvas environment) ---
         async function initializeFirebase() {
             try {
                 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
@@ -690,86 +872,74 @@
                 } else {
                     await signInAnonymously(auth);
                 }
-                console.log("Firebase initialized and authenticated.");
+                console.log("Firebase initialized and authenticated for Canvas environment.");
             } catch (error) {
                 console.error("Error initializing Firebase or authenticating:", error);
-                showMessageBox("Failed to initialize Firebase or authenticate. Please try again later.");
+                showMessageBox("Failed to initialize Firebase or authenticate for Canvas. Please try again later.");
             }
         }
-
         initializeFirebase();
 
-        const reportInput = document.getElementById('reportInput');
-        const apiKeyInput = document.getElementById('apiKeyInput');
-        const openInputModalBtn = document.getElementById('openInputModalBtn');
-        const inputModal = document.getElementById('inputModal');
-        const submitInputBtn = document.getElementById('submitInputBtn');
-        const submitButtonText = document.getElementById('submitButtonText');
-        const submitLoadingSpinner = document.getElementById('submitLoadingSpinner');
-        const graphContainer = document.getElementById('graphContainer');
-        const knowledgeGraphSvg = document.getElementById('knowledgeGraphSvg');
-        const graphPlaceholder = document.getElementById('graphPlaceholder');
-        const pdfUploadInput = document.getElementById('pdfUploadInput');
-        const fileNameDisplay = document.getElementById('fileNameDisplay');
-        const pdfLoadingSpinner = document.getElementById('pdfLoadingSpinner');
-        const fileUploadArea = document.getElementById('fileUploadArea');
-        const progressBarOverlay = document.getElementById('progressBarOverlay');
-        const progressBarFill = document.getElementById('progressBarFill');
-        const progressText = document.getElementById('progressText');
+        // --- Supabase Authentication Functions (Removed as requested) ---
+        // async function signIn(email, password) { /* ... */ }
+        // async function signUp(email, password) { /* ... */ }
+        // async function signOut() { /* ... */ }
+        function updateAuthUI(user) {
+            // This function is simplified as auth is removed.
+            // It now just ensures the report input section is visible.
+            reportInputSection.classList.remove('hidden');
+            modalTitle.textContent = "Generate Knowledge Graph";
+            modalSubtitle.textContent = "Enter your report details below.";
+        }
 
-        // Chatbot elements
-        const chatBotContainer = document.getElementById('chatBotContainer');
-        const chatHeader = document.getElementById('chatHeader'); // Get chat header for dragging
-        const chatHistory = document.getElementById('chatHistory');
-        const chatInput = document.getElementById('chatInput');
-        const sendChatBtn = document.getElementById('sendChatBtn');
-        const sendButtonText = document.getElementById('sendButtonText');
-        const chatLoadingSpinner = document.getElementById('chatLoadingSpinner');
+        // --- UI Event Listeners ---
+        document.getElementById('messageBoxOkBtn').addEventListener('click', () => {
+            document.getElementById('messageBox').style.display = 'none';
+        });
 
-        // Node Info Pop-up elements
-        const nodeInfoPopup = document.getElementById('nodeInfoPopup');
-        const closeNodeInfoPopupBtn = document.getElementById('closeNodeInfoPopup');
-        const popupNodeTitle = document.getElementById('popupNodeTitle');
-        const popupNodeSummary = document.getElementById('popupNodeSummary');
+        // Auth toggle links (Removed as requested)
+        // showSignUpLink.addEventListener('click', () => { /* ... */ });
+        // showSignInLink.addEventListener('click', () => { /* ... */ });
+        // Auth button clicks (Removed as requested)
+        // signInBtn.addEventListener('click', () => signIn(signInEmail.value, signInPassword.value));
+        // signUpBtn.addEventListener('click', () => signUp(signUpEmail.value, signUpPassword.value));
+        // signOutBtn.addEventListener('click', signOut);
 
-        let progressInterval;
+        // Function to handle opening the input modal (simplified)
+        async function handleOpenInputModal() {
+            inputModal.classList.remove('hidden');
+            updateAuthUI(null); // Call to ensure report input section is visible
+        }
 
-        // Draggable Chatbot variables
-        let isDraggingChatbot = false;
-        let chatbotOffsetX, chatbotOffsetY;
+        // Open input/auth modal
+        openInputModalBtn.addEventListener('click', handleOpenInputModal);
 
-        // Set initial SVG dimensions based on window size
-        let width = window.innerWidth;
-        let height = window.innerHeight;
-
-        // D3.js setup
+        // --- Existing App Logic ---
         const svg = d3.select("#knowledgeGraphSvg")
             .attr("viewBox", [0, 0, width, height]);
 
-        // Define arrow marker for links
         svg.append("defs").append("marker")
             .attr("id", "arrow")
             .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 20) /* Adjusted refX for smaller arrow */
+            .attr("refX", 20)
             .attr("refY", 0)
-            .attr("markerWidth", 6) /* Smaller arrow */
-            .attr("markerHeight", 6) /* Smaller arrow */
+            .attr("markerWidth", 6)
+            .attr("markerHeight", 6)
             .attr("orient", "auto")
             .append("path")
             .attr("d", "M0,-5L10,0L0,5")
-            .attr("class", "arrowhead"); /* Class for styling the arrowhead */
+            .attr("class", "arrowhead");
 
-        const g = svg.append("g"); // Group for zooming and panning
+        const g = svg.append("g");
 
         const simulation = d3.forceSimulation()
-            .force("link", d3.forceLink().id(d => d.id).distance(200)) /* Increased link distance to 200 */
+            .force("link", d3.forceLink().id(d => d.id).distance(200))
             .force("charge", d3.forceManyBody().strength(-500))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("collision", d3.forceCollide().radius(30));
 
         let link, node, linkLabel;
 
-        // Zoom and Pan functionality
         const zoom = d3.zoom()
             .scaleExtent([0.1, 8])
             .on("zoom", (event) => {
@@ -777,7 +947,6 @@
             });
         svg.call(zoom);
 
-        // Function to update SVG dimensions on resize
         function resizeGraph() {
             width = window.innerWidth;
             height = window.innerHeight;
@@ -786,10 +955,6 @@
             simulation.alpha(0.3).restart();
         }
 
-        // Listen for window resize events
-        window.addEventListener('resize', resizeGraph);
-
-        // Function to render the graph
         function renderGraph(nodes, links) {
             currentGraphNodes = nodes;
             currentGraphLinks = links;
@@ -833,9 +998,8 @@
                 .attr("y", -25)
                 .text(d => d.label);
 
-            // Add click event listener to nodes for pop-up
             node.on("click", async (event, d) => {
-                event.stopPropagation(); // Prevent click from propagating to SVG background
+                event.stopPropagation();
                 await showNodeInfoPopup(d.label, d.x, d.y);
             });
 
@@ -884,7 +1048,13 @@
             d.fy = null;
         }
 
-        // Function to set the position of the main "Generate Knowledge Graph" button
+        function showMessageBox(message) {
+            const messageBox = document.getElementById('messageBox');
+            const messageBoxText = document.getElementById('messageBoxText');
+            messageBoxText.textContent = message;
+            messageBox.style.display = 'flex';
+        }
+
         function setMainButtonPosition(position) {
             if (position === 'center') {
                 openInputModalBtn.classList.remove('top-left-position');
@@ -895,7 +1065,6 @@
             }
         }
 
-        // Function to show/hide loading spinner for graph generation
         function setLoadingState(isLoading) {
             submitInputBtn.disabled = isLoading;
             if (isLoading) {
@@ -907,7 +1076,6 @@
             }
         }
 
-        // Function to show/hide loading spinner for PDF processing
         function setPdfLoadingState(isLoading) {
             pdfUploadInput.disabled = isLoading;
             fileUploadArea.style.cursor = isLoading ? 'not-allowed' : 'pointer';
@@ -919,7 +1087,6 @@
             }
         }
 
-        // Progress Bar functions
         function showProgressBar() {
             progressBarOverlay.style.display = 'flex';
             progressBarFill.style.width = '0%';
@@ -995,13 +1162,18 @@
             }
         });
 
-        openInputModalBtn.addEventListener('click', () => {
-            inputModal.classList.remove('hidden');
-        });
-
         submitInputBtn.addEventListener('click', async () => {
             const reportText = reportInput.value.trim();
             const userApiKey = apiKeyInput.value.trim();
+
+            // Removed Supabase user check as auth is disabled
+            // const { data: { user } } = await supabase.auth.getUser();
+            // if (!user) {
+            //     showMessageBox("You must be logged in to generate a knowledge graph.");
+            //     inputModal.classList.remove('hidden');
+            //     updateAuthUI(null);
+            //     return;
+            // }
 
             if (!userApiKey) {
                 showMessageBox("Please enter your Gemini API Key.");
@@ -1074,7 +1246,7 @@ ${reportText}`;
                 });
 
                 const result = await response.json();
-                console.log("AI Response for Graph Generation:", result); // Log the full response
+                console.log("AI Response for Graph Generation:", result);
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
@@ -1109,6 +1281,14 @@ ${reportText}`;
                 showMessageBox("Please type a question for the chatbot.");
                 return;
             }
+
+            // Removed Supabase user check as auth is disabled
+            // const { data: { user } } = await supabase.auth.getUser();
+            // if (!user) {
+            //     showMessageBox("You must be logged in to use the chatbot.");
+            //     chatInput.value = '';
+            //     return;
+            // }
 
             if (currentGraphNodes.length === 0) {
                 showMessageBox("Please generate a knowledge graph first before asking questions.");
@@ -1162,7 +1342,7 @@ User Question: ${userQuestion}`;
                 });
 
                 const result = await response.json();
-                console.log("AI Response for Chatbot:", result); // Log the full response
+                console.log("AI Response for Chatbot:", result);
 
                 let aiResponseText = "Could not get a response from the AI.";
                 if (result.candidates && result.candidates.length > 0 &&
@@ -1202,50 +1382,48 @@ User Question: ${userQuestion}`;
         async function showNodeInfoPopup(nodeLabel, nodeX, nodeY) {
             nodeInfoPopup.classList.remove('hidden');
             popupNodeTitle.textContent = nodeLabel;
-            popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>'; // Show spinner and clear previous content
+            popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>';
 
-            // Position the pop-up near the clicked node
             const graphRect = graphContainer.getBoundingClientRect();
             const currentTransform = d3.zoomTransform(svg.node());
 
-            // Calculate node's position relative to the viewport
             const transformedX = graphRect.left + currentTransform.applyX(nodeX);
             const transformedY = graphRect.top + currentTransform.applyY(nodeY);
 
             let finalLeft = transformedX;
             let finalTop = transformedY;
 
-            // Adjust position to keep it within viewport if it goes off-screen
-            // Temporarily make it visible to get accurate dimensions
-            nodeInfoPopup.style.display = 'flex'; // Make it flex to calculate dimensions
+            nodeInfoPopup.style.display = 'flex';
             const popupWidth = nodeInfoPopup.offsetWidth;
             const popupHeight = nodeInfoPopup.offsetHeight;
-            nodeInfoPopup.style.display = 'none'; // Hide it again immediately after getting dimensions
+            nodeInfoPopup.style.display = 'none';
 
-
-            // Adjust if it goes off right edge
             if (finalLeft + popupWidth > window.innerWidth - 20) {
                 finalLeft = window.innerWidth - popupWidth - 20;
             }
-            // Adjust if it goes off bottom edge
             if (finalTop + popupHeight > window.innerHeight - 20) {
                 finalTop = window.innerHeight - popupHeight - 20;
             }
-            // Adjust if it goes off left edge
             if (finalLeft < 20) {
                 finalLeft = 20;
             }
-            // Adjust if it goes off top edge
             if (finalTop < 20) {
                 finalTop = 20;
             }
 
             nodeInfoPopup.style.left = `${finalLeft}px`;
             nodeInfoPopup.style.top = `${finalTop}px`;
-            nodeInfoPopup.style.display = 'flex'; // Finally show it in the adjusted position
+            nodeInfoPopup.style.display = 'flex';
 
             try {
                 const userApiKey = apiKeyInput.value.trim();
+                // Removed Supabase user check as auth is disabled
+                // const { data: { user } } = await supabase.auth.getUser();
+                // if (!user) {
+                //     popupNodeSummary.textContent = "Please log in and enter your Gemini API Key in the input modal to get node information.";
+                //     console.warn("User not authenticated for Node Summary request.");
+                //     return;
+                // }
                 if (!userApiKey) {
                     popupNodeSummary.textContent = "Please enter your Gemini API Key in the input modal to get node information.";
                     console.warn("API Key is missing for Node Summary request.");
@@ -1277,19 +1455,18 @@ Concept to summarize: ${nodeLabel}`;
                 });
 
                 const result = await response.json();
-                console.log("AI Response for Node Summary:", result); // Log the full response
+                console.log("AI Response for Node Summary:", result);
 
-                let summaryText = "The AI could not generate a summary for this node."; // Default fallback
+                let summaryText = "The AI could not generate a summary for this node.";
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
                     result.candidates[0].content.parts.length > 0 &&
-                    result.candidates[0].content.parts[0].text) { // Explicitly check for .text
+                    result.candidates[0].content.parts[0].text) {
                     summaryText = result.candidates[0].content.parts[0].text;
                 } else if (result.error) {
                     summaryText = `Error from AI: ${result.error.message || 'Unknown error'}`;
                     console.error("Gemini API Error for Node Summary:", result.error);
                 } else {
-                    // If candidates structure is there but no text, or unexpected structure
                     summaryText = "The AI response was unexpected or empty. Could not generate summary.";
                     console.warn("Unexpected AI response structure for Node Summary:", result);
                 }
@@ -1305,7 +1482,6 @@ Concept to summarize: ${nodeLabel}`;
             nodeInfoPopup.classList.add('hidden');
         });
 
-        // Close pop-up if clicked outside (on SVG background)
         svg.on("click", () => {
             if (!nodeInfoPopup.classList.contains('hidden')) {
                 nodeInfoPopup.classList.add('hidden');
@@ -1315,17 +1491,15 @@ Concept to summarize: ${nodeLabel}`;
         // Chatbot Draggability
         chatHeader.addEventListener('mousedown', (e) => {
             isDraggingChatbot = true;
-            // Calculate offset relative to the chatbot's current position
             const rect = chatBotContainer.getBoundingClientRect();
             chatbotOffsetX = e.clientX - rect.left;
             chatbotOffsetY = e.clientY - rect.top;
 
-            // Set position to absolute if not already, for direct top/left manipulation
-            chatBotContainer.style.position = 'fixed'; // Ensure it's fixed for drag
-            chatBotContainer.style.right = 'auto'; // Disable right/bottom constraints
+            chatBotContainer.style.position = 'fixed';
+            chatBotContainer.style.right = 'auto';
             chatBotContainer.style.bottom = 'auto';
             chatBotContainer.style.cursor = 'grabbing';
-            e.preventDefault(); // Prevent text selection or other default behaviors
+            e.preventDefault();
         });
 
         document.addEventListener('mousemove', (e) => {
@@ -1334,7 +1508,6 @@ Concept to summarize: ${nodeLabel}`;
             let newLeft = e.clientX - chatbotOffsetX;
             let newTop = e.clientY - chatbotOffsetY;
 
-            // Keep chatbot within viewport boundaries
             const chatRect = chatBotContainer.getBoundingClientRect();
             if (newLeft < 0) newLeft = 0;
             if (newTop < 0) newTop = 0;
@@ -1350,9 +1523,24 @@ Concept to summarize: ${nodeLabel}`;
             chatBotContainer.style.cursor = 'grab';
         });
 
-
-        setMainButtonPosition('center');
+        // Initial setup on page load
         resizeGraph();
+        // Show welcome portal first
+        welcomePortal.classList.remove('hidden');
+        openInputModalBtn.classList.add('hidden'); // Hide the main button until "Get Started" is clicked
+
+        getStartedBtn.addEventListener('click', () => {
+            welcomePortal.classList.add('hidden'); // Hide welcome portal
+            openInputModalBtn.classList.remove('hidden'); // Show the main button
+            handleOpenInputModal(); // Directly call the function to open the modal
+        });
+
+        // Removed initial auth state check as Supabase is removed
+        // supabase.auth.getSession().then(({ data: { session } }) => {
+        //     updateAuthUI(session?.user || null);
+        // });
+        // Manually trigger updateAuthUI to set up the input modal correctly without auth
+        updateAuthUI(null);
     </script>
 </body>
 </html>
