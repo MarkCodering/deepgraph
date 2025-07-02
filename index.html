@@ -395,6 +395,8 @@
             display: none;
             flex-direction: column;
             overflow: hidden;
+            /* Draggable styles */
+            cursor: grab;
         }
         #chatHeader {
             background-color: rgba(255, 255, 255, 0.1); /* White transparent */
@@ -404,6 +406,7 @@
             font-size: 1.1rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2); /* White transparent border */
             text-align: center;
+            cursor: grab; /* Indicate draggable */
         }
         #chatHistory {
             flex-grow: 1;
@@ -562,7 +565,6 @@
     </style>
 </head>
 <body>
-    <!-- Full-screen Knowledge Graph Background -->
     <div id="graphContainer">
         <svg id="knowledgeGraphSvg" class="w-full h-full absolute top-0 left-0"></svg>
         <div id="graphPlaceholder" class="absolute inset-0 flex items-center justify-center text-2xl font-semibold p-4">
@@ -570,12 +572,10 @@
         </div>
     </div>
 
-    <!-- Main UI Button (floating above graph) -->
     <button id="openInputModalBtn" class="main-button center-position">
         <span id="openButtonText">Generate Knowledge Graph</span>
     </button>
 
-    <!-- Input Modal (hidden by default) -->
     <div id="inputModal" class="floating-ui-card hidden">
         <div class="header">
             <h1>Input Your Research Report</h1>
@@ -608,7 +608,6 @@
         </button>
     </div>
 
-    <!-- Progress Bar Overlay -->
     <div id="progressBarOverlay">
         <p>Generating Knowledge Graph...</p>
         <div id="progressBarContainer">
@@ -617,7 +616,6 @@
         <span id="progressText">0%</span>
     </div>
 
-    <!-- Chatbot Container -->
     <div id="chatBotContainer">
         <div id="chatHeader">Chat with Graph AI</div>
         <div id="chatHistory">
@@ -632,7 +630,6 @@
         </div>
     </div>
 
-    <!-- Node Info Pop-up -->
     <div id="nodeInfoPopup" class="hidden">
         <button class="close-btn" id="closeNodeInfoPopup">&times;</button>
         <h3 id="popupNodeTitle"></h3>
@@ -641,7 +638,6 @@
         </div>
     </div>
 
-    <!-- Message Box for alerts -->
     <div id="messageBox" class="message-box">
         <p id="messageBoxText"></p>
         <button id="messageBoxOkBtn">OK</button>
@@ -723,6 +719,7 @@
 
         // Chatbot elements
         const chatBotContainer = document.getElementById('chatBotContainer');
+        const chatHeader = document.getElementById('chatHeader'); // Get chat header for dragging
         const chatHistory = document.getElementById('chatHistory');
         const chatInput = document.getElementById('chatInput');
         const sendChatBtn = document.getElementById('sendChatBtn');
@@ -736,6 +733,10 @@
         const popupNodeSummary = document.getElementById('popupNodeSummary');
 
         let progressInterval;
+
+        // Draggable Chatbot variables
+        let isDraggingChatbot = false;
+        let chatbotOffsetX, chatbotOffsetY;
 
         // Set initial SVG dimensions based on window size
         let width = window.innerWidth;
@@ -883,6 +884,7 @@
             d.fy = null;
         }
 
+        // Function to set the position of the main "Generate Knowledge Graph" button
         function setMainButtonPosition(position) {
             if (position === 'center') {
                 openInputModalBtn.classList.remove('top-left-position');
@@ -893,6 +895,7 @@
             }
         }
 
+        // Function to show/hide loading spinner for graph generation
         function setLoadingState(isLoading) {
             submitInputBtn.disabled = isLoading;
             if (isLoading) {
@@ -904,6 +907,7 @@
             }
         }
 
+        // Function to show/hide loading spinner for PDF processing
         function setPdfLoadingState(isLoading) {
             pdfUploadInput.disabled = isLoading;
             fileUploadArea.style.cursor = isLoading ? 'not-allowed' : 'pointer';
@@ -915,6 +919,7 @@
             }
         }
 
+        // Progress Bar functions
         function showProgressBar() {
             progressBarOverlay.style.display = 'flex';
             progressBarFill.style.width = '0%';
@@ -1069,6 +1074,7 @@ ${reportText}`;
                 });
 
                 const result = await response.json();
+                console.log("AI Response for Graph Generation:", result); // Log the full response
 
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
@@ -1156,6 +1162,7 @@ User Question: ${userQuestion}`;
                 });
 
                 const result = await response.json();
+                console.log("AI Response for Chatbot:", result); // Log the full response
 
                 let aiResponseText = "Could not get a response from the AI.";
                 if (result.candidates && result.candidates.length > 0 &&
@@ -1198,46 +1205,52 @@ User Question: ${userQuestion}`;
             popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>'; // Show spinner
 
             // Position the pop-up near the clicked node
-            // Adjust for scrolling and centering
             const graphRect = graphContainer.getBoundingClientRect();
-            const svgRect = knowledgeGraphSvg.getBoundingClientRect();
             const currentTransform = d3.zoomTransform(svg.node());
 
             // Calculate node's position relative to the viewport
             const transformedX = graphRect.left + currentTransform.applyX(nodeX);
             const transformedY = graphRect.top + currentTransform.applyY(nodeY);
 
-            // Set initial position (can be refined for better placement relative to node)
-            nodeInfoPopup.style.left = `${transformedX}px`;
-            nodeInfoPopup.style.top = `${transformedY}px`;
+            let finalLeft = transformedX;
+            let finalTop = transformedY;
 
             // Adjust position to keep it within viewport if it goes off-screen
-            const popupRect = nodeInfoPopup.getBoundingClientRect();
-            if (popupRect.right > window.innerWidth - 20) {
-                nodeInfoPopup.style.left = `${window.innerWidth - popupRect.width - 20}px`;
+            const popupWidth = nodeInfoPopup.offsetWidth;
+            const popupHeight = nodeInfoPopup.offsetHeight; // Get current dimensions after content is set
+
+            // Adjust if it goes off right edge
+            if (finalLeft + popupWidth > window.innerWidth - 20) {
+                finalLeft = window.innerWidth - popupWidth - 20;
             }
-            if (popupRect.bottom > window.innerHeight - 20) {
-                nodeInfoPopup.style.top = `${window.innerHeight - popupRect.height - 20}px`;
+            // Adjust if it goes off bottom edge
+            if (finalTop + popupHeight > window.innerHeight - 20) {
+                finalTop = window.innerHeight - popupHeight - 20;
             }
-            if (popupRect.left < 20) {
-                nodeInfoPopup.style.left = `20px`;
+            // Adjust if it goes off left edge
+            if (finalLeft < 20) {
+                finalLeft = 20;
             }
-            if (popupRect.top < 20) {
-                nodeInfoPopup.style.top = `20px`;
+            // Adjust if it goes off top edge
+            if (finalTop < 20) {
+                finalTop = 20;
             }
 
+            nodeInfoPopup.style.left = `${finalLeft}px`;
+            nodeInfoPopup.style.top = `${finalTop}px`;
 
             try {
                 const userApiKey = apiKeyInput.value.trim();
                 if (!userApiKey) {
                     popupNodeSummary.textContent = "Please enter your Gemini API Key in the input modal to get node information.";
+                    console.warn("API Key is missing for Node Summary request.");
                     return;
                 }
 
                 const graphJson = JSON.stringify({ nodes: currentGraphNodes, links: currentGraphLinks });
 
                 let chatHistoryForAI = [];
-                const promptForSummary = `You are a knowledge graph analysis AI. Provide a concise summary (2-3 sentences) about the concept "${nodeLabel}" based *only* on the provided knowledge graph data. If the information is not directly available or inferable from the graph, state that.
+                const promptForSummary = `You are a knowledge graph analysis AI. Provide a concise summary (2-3 sentences) about the concept "${nodeLabel}" based *only* on the provided knowledge graph data. If the information is not directly available or inferable from the graph, state that you cannot answer the question based on the provided graph.
 
 Knowledge Graph Data (JSON):
 ${graphJson}
@@ -1259,18 +1272,27 @@ Concept to summarize: ${nodeLabel}`;
                 });
 
                 const result = await response.json();
+                console.log("AI Response for Node Summary:", result); // Log the full response
 
-                let summaryText = "Could not retrieve summary from AI.";
+                let summaryText = "The AI could not generate a summary for this node."; // Default fallback
                 if (result.candidates && result.candidates.length > 0 &&
                     result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
+                    result.candidates[0].content.parts.length > 0 &&
+                    result.candidates[0].content.parts[0].text) { // Explicitly check for .text
                     summaryText = result.candidates[0].content.parts[0].text;
+                } else if (result.error) {
+                    summaryText = `Error from AI: ${result.error.message || 'Unknown error'}`;
+                    console.error("Gemini API Error for Node Summary:", result.error);
+                } else {
+                    // If candidates structure is there but no text, or unexpected structure
+                    summaryText = "The AI response was unexpected or empty. Could not generate summary.";
+                    console.warn("Unexpected AI response structure for Node Summary:", result);
                 }
                 popupNodeSummary.textContent = summaryText;
 
             } catch (error) {
                 console.error("Error fetching node summary:", error);
-                popupNodeSummary.textContent = "Failed to load summary. Check API key or network.";
+                popupNodeSummary.textContent = "Failed to load summary. Check API key or network connection.";
             }
         }
 
@@ -1283,6 +1305,44 @@ Concept to summarize: ${nodeLabel}`;
             if (!nodeInfoPopup.classList.contains('hidden')) {
                 nodeInfoPopup.classList.add('hidden');
             }
+        });
+
+        // Chatbot Draggability
+        chatHeader.addEventListener('mousedown', (e) => {
+            isDraggingChatbot = true;
+            // Calculate offset relative to the chatbot's current position
+            const rect = chatBotContainer.getBoundingClientRect();
+            chatbotOffsetX = e.clientX - rect.left;
+            chatbotOffsetY = e.clientY - rect.top;
+
+            // Set position to absolute if not already, for direct top/left manipulation
+            chatBotContainer.style.position = 'fixed'; // Ensure it's fixed for drag
+            chatBotContainer.style.right = 'auto'; // Disable right/bottom constraints
+            chatBotContainer.style.bottom = 'auto';
+            chatBotContainer.style.cursor = 'grabbing';
+            e.preventDefault(); // Prevent text selection or other default behaviors
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (!isDraggingChatbot) return;
+
+            let newLeft = e.clientX - chatbotOffsetX;
+            let newTop = e.clientY - chatbotOffsetY;
+
+            // Keep chatbot within viewport boundaries
+            const chatRect = chatBotContainer.getBoundingClientRect();
+            if (newLeft < 0) newLeft = 0;
+            if (newTop < 0) newTop = 0;
+            if (newLeft + chatRect.width > window.innerWidth) newLeft = window.innerWidth - chatRect.width;
+            if (newTop + chatRect.height > window.innerHeight) newTop = window.innerHeight - chatRect.height;
+
+            chatBotContainer.style.left = `${newLeft}px`;
+            chatBotContainer.style.top = `${newTop}px`;
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDraggingChatbot = false;
+            chatBotContainer.style.cursor = 'grab';
         });
 
 
