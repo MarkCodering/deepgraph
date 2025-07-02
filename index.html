@@ -147,13 +147,12 @@
         }
         textarea {
             min-height: 200px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
         }
         textarea:focus, input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus {
             outline: none;
             border-color: #ffffff;
             box-shadow: none;
+            color: #ffffff; /* Ensure text remains white on focus */
         }
 
         .file-upload-area {
@@ -548,6 +547,7 @@
             padding: 5px;
             border-radius: 50%;
             transition: background-color 0.2s;
+            z-index: 100 !important; /* Ensure this is on top */
         }
         #nodeInfoPopup .close-btn:hover {
             background-color: rgba(255, 255, 255, 0.1);
@@ -1166,15 +1166,6 @@
             const reportText = reportInput.value.trim();
             const userApiKey = apiKeyInput.value.trim();
 
-            // Removed Supabase user check as auth is disabled
-            // const { data: { user } } = await supabase.auth.getUser();
-            // if (!user) {
-            //     showMessageBox("You must be logged in to generate a knowledge graph.");
-            //     inputModal.classList.remove('hidden');
-            //     updateAuthUI(null);
-            //     return;
-            // }
-
             if (!userApiKey) {
                 showMessageBox("Please enter your Gemini API Key.");
                 return;
@@ -1282,14 +1273,6 @@ ${reportText}`;
                 return;
             }
 
-            // Removed Supabase user check as auth is disabled
-            // const { data: { user } } = await supabase.auth.getUser();
-            // if (!user) {
-            //     showMessageBox("You must be logged in to use the chatbot.");
-            //     chatInput.value = '';
-            //     return;
-            // }
-
             if (currentGraphNodes.length === 0) {
                 showMessageBox("Please generate a knowledge graph first before asking questions.");
                 chatInput.value = '';
@@ -1393,37 +1376,36 @@ User Question: ${userQuestion}`;
             let finalLeft = transformedX;
             let finalTop = transformedY;
 
+            // Temporarily make it visible to get accurate dimensions
             nodeInfoPopup.style.display = 'flex';
             const popupWidth = nodeInfoPopup.offsetWidth;
             const popupHeight = nodeInfoPopup.offsetHeight;
-            nodeInfoPopup.style.display = 'none';
+            nodeInfoPopup.style.display = 'none'; // Hide it again immediately after getting dimensions
 
+
+            // Adjust if it goes off right edge
             if (finalLeft + popupWidth > window.innerWidth - 20) {
                 finalLeft = window.innerWidth - popupWidth - 20;
             }
+            // Adjust if it goes off bottom edge
             if (finalTop + popupHeight > window.innerHeight - 20) {
                 finalTop = window.innerHeight - popupHeight - 20;
             }
+            // Adjust if it goes off left edge
             if (finalLeft < 20) {
                 finalLeft = 20;
             }
+            // Adjust if it goes off top edge
             if (finalTop < 20) {
                 finalTop = 20;
             }
 
             nodeInfoPopup.style.left = `${finalLeft}px`;
             nodeInfoPopup.style.top = `${finalTop}px`;
-            nodeInfoPopup.style.display = 'flex';
+            nodeInfoPopup.style.display = 'flex'; // Finally show it in the adjusted position
 
             try {
                 const userApiKey = apiKeyInput.value.trim();
-                // Removed Supabase user check as auth is disabled
-                // const { data: { user } } = await supabase.auth.getUser();
-                // if (!user) {
-                //     popupNodeSummary.textContent = "Please log in and enter your Gemini API Key in the input modal to get node information.";
-                //     console.warn("User not authenticated for Node Summary request.");
-                //     return;
-                // }
                 if (!userApiKey) {
                     popupNodeSummary.textContent = "Please enter your Gemini API Key in the input modal to get node information.";
                     console.warn("API Key is missing for Node Summary request.");
@@ -1479,12 +1461,13 @@ Concept to summarize: ${nodeLabel}`;
         }
 
         closeNodeInfoPopupBtn.addEventListener('click', () => {
-            nodeInfoPopup.classList.add('hidden');
+            console.log("Close button clicked!"); // Confirm click is registered
+            nodeInfoPopup.style.display = 'none'; // Directly set display to none
         });
 
         svg.on("click", () => {
-            if (!nodeInfoPopup.classList.contains('hidden')) {
-                nodeInfoPopup.classList.add('hidden');
+            if (nodeInfoPopup.style.display !== 'none') { // Check current display style
+                nodeInfoPopup.style.display = 'none'; // Directly set display to none
             }
         });
 
@@ -1535,10 +1518,6 @@ Concept to summarize: ${nodeLabel}`;
             handleOpenInputModal(); // Directly call the function to open the modal
         });
 
-        // Removed initial auth state check as Supabase is removed
-        // supabase.auth.getSession().then(({ data: { session } }) => {
-        //     updateAuthUI(session?.user || null);
-        // });
         // Manually trigger updateAuthUI to set up the input modal correctly without auth
         updateAuthUI(null);
     </script>
