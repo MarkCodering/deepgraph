@@ -1202,7 +1202,7 @@ User Question: ${userQuestion}`;
         async function showNodeInfoPopup(nodeLabel, nodeX, nodeY) {
             nodeInfoPopup.classList.remove('hidden');
             popupNodeTitle.textContent = nodeLabel;
-            popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>'; // Show spinner
+            popupNodeSummary.innerHTML = '<div class="popup-loading-spinner"></div>'; // Show spinner and clear previous content
 
             // Position the pop-up near the clicked node
             const graphRect = graphContainer.getBoundingClientRect();
@@ -1216,8 +1216,12 @@ User Question: ${userQuestion}`;
             let finalTop = transformedY;
 
             // Adjust position to keep it within viewport if it goes off-screen
+            // Temporarily make it visible to get accurate dimensions
+            nodeInfoPopup.style.display = 'flex'; // Make it flex to calculate dimensions
             const popupWidth = nodeInfoPopup.offsetWidth;
-            const popupHeight = nodeInfoPopup.offsetHeight; // Get current dimensions after content is set
+            const popupHeight = nodeInfoPopup.offsetHeight;
+            nodeInfoPopup.style.display = 'none'; // Hide it again immediately after getting dimensions
+
 
             // Adjust if it goes off right edge
             if (finalLeft + popupWidth > window.innerWidth - 20) {
@@ -1238,6 +1242,7 @@ User Question: ${userQuestion}`;
 
             nodeInfoPopup.style.left = `${finalLeft}px`;
             nodeInfoPopup.style.top = `${finalTop}px`;
+            nodeInfoPopup.style.display = 'flex'; // Finally show it in the adjusted position
 
             try {
                 const userApiKey = apiKeyInput.value.trim();
