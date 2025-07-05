@@ -18,12 +18,31 @@ export default function Login() {
 
   return (
     <Layout>
-      <h1>Login</h1>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', maxWidth: 300 }}>
-        <input value={email} onChange={e => setEmail(e.target.value)} placeholder="Email" type="email" required />
-        <input value={password} onChange={e => setPassword(e.target.value)} placeholder="Password" type="password" required />
-        <button type="submit">Login</button>
-        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <h1 className="text-2xl font-bold mb-4">Login</h1>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-2 max-w-sm"
+      >
+        <input
+          className="border p-2 rounded"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="Email"
+          type="email"
+          required
+        />
+        <input
+          className="border p-2 rounded"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          type="password"
+          required
+        />
+        <button className="bg-blue-600 text-white py-2 rounded" type="submit">
+          Login
+        </button>
+        {error && <p className="text-red-600">{error}</p>}
       </form>
     </Layout>
   )

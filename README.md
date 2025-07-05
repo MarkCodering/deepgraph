@@ -1,6 +1,6 @@
 # DeepGraph Next.js App
 
-This project is a Next.js application that demonstrates Supabase authentication and a simple documentation layout.
+This project is a Next.js application that demonstrates Supabase authentication and a simple documentation layout. Styling is provided by Tailwind CSS.
 
 ## Development
 
@@ -21,3 +21,5 @@ npm run build
 ## Docs
 
 Documentation pages live under `pages/docs`. Visit `/docs` for the index.
+
+Tailwind CSS utilities are available globally via `styles/globals.css`.

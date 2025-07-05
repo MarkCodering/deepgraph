@@ -1,6 +1,7 @@
 import type { AppProps } from 'next/app'
 import { createContext, useEffect, useState, useContext } from 'react'
 import { Session, createClient } from '@supabase/supabase-js'
+import '../styles/globals.css'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!

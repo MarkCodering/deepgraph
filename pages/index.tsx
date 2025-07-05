@@ -6,12 +6,13 @@ export default function Home() {
   const { session } = useAuth()
   return (
     <Layout>
-      <h1>Welcome to DeepGraph</h1>
+      <h1 className="text-3xl font-bold mb-4">Welcome to DeepGraph</h1>
       {session ? (
         <p>Signed in as {session.user.email}</p>
       ) : (
         <p>
-          <Link href="/login">Log in</Link> or <Link href="/signup">sign up</Link> to
+          <Link href="/login" className="underline text-blue-600">Log in</Link> or{' '}
+          <Link href="/signup" className="underline text-blue-600">sign up</Link> to
           continue.
         </p>
       )}

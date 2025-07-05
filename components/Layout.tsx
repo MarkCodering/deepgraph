@@ -11,14 +11,14 @@ export default function Layout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{ width: 240, padding: '1rem', background: '#f1f5f9' }}>
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+    <div className="flex min-h-screen">
+      <aside className="w-60 p-4 bg-gray-100">
+        <nav className="flex flex-col gap-2">
           <Link href="/">Home</Link>
           <Link href="/docs">Docs</Link>
           <Link href="/docs/getting-started">Getting Started</Link>
           {session ? (
-            <button onClick={handleSignOut}>Sign out</button>
+            <button onClick={handleSignOut} className="text-left">Sign out</button>
           ) : (
             <>
               <Link href="/login">Login</Link>
@@ -27,7 +27,7 @@ export default function Layout({ children }: { children: ReactNode }) {
           )}
         </nav>
       </aside>
-      <main style={{ flex: 1, padding: '2rem' }}>{children}</main>
+      <main className="flex-1 p-8">{children}</main>
     </div>
   )
 }
