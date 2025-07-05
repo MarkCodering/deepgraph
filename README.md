@@ -1,14 +1,25 @@
----
-name: HTML Starter
-slug: html-starter-with-analytics
-description: HTML5 template with analytics and advanced routing configuration.
-deployUrl: https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/html&project-name=html
-relatedTemplates:
-  - nextjs-boilerplate
----
+# DeepGraph Next.js App
 
-# HTML Starter
+This project is a Next.js application that demonstrates Supabase authentication and a simple documentation layout. Styling is provided by Tailwind CSS.
 
-This is a starter HTML5 templates which is configured with Vercel Analytics (through a `script` tag), advanced routing with [Vercel Edge Middleware](https://vercel.com/docs/concepts/functions/edge-middleware), as well as some basic styles
+## Development
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/examples/tree/main/solutions/html&project-name=html)
+1. Copy `.env.local.example` to `.env.local` and fill in your Supabase credentials.
+2. Install dependencies with `npm install`.
+3. Run the development server:
+
+```bash
+npm run dev
+```
+
+To create a static build (used by the deployment configuration), run:
+
+```bash
+npm run build
+```
+
+## Docs
+
+Documentation pages live under `pages/docs`. Visit `/docs` for the index.
+
+Tailwind CSS utilities are available globally via `styles/globals.css`.
