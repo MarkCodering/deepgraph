@@ -1,14 +1,14 @@
-import { next } from '@vercel/edge';
+import { NextResponse } from 'next/server';
 
-export default function middleware(req) {
-  return next({
-    headers: {
-      'Referrer-Policy': 'origin-when-cross-origin',
-      'X-Frame-Options': 'DENY',
-      'X-Content-Type-Options': 'nosniff',
-      'X-DNS-Prefetch-Control': 'on',
-      'Strict-Transport-Security':
-        'max-age=31536000; includeSubDomains; preload',
-    },
-  });
+export function middleware(req) {
+  const res = NextResponse.next();
+  res.headers.set('Referrer-Policy', 'origin-when-cross-origin');
+  res.headers.set('X-Frame-Options', 'DENY');
+  res.headers.set('X-Content-Type-Options', 'nosniff');
+  res.headers.set('X-DNS-Prefetch-Control', 'on');
+  res.headers.set(
+    'Strict-Transport-Security',
+    'max-age=31536000; includeSubDomains; preload'
+  );
+  return res;
 }
