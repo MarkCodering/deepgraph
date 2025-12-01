@@ -1,51 +1,36 @@
 # DeepGraph
 
-Welcome to **DeepGraph**, a tool designed to convert research reports into interactive knowledge graphs.
+DeepGraph is a Next.js (TypeScript) web experience for turning research reports into interactive knowledge graphs. Upload a PDF or paste text, generate a graph, and chat with an AI about the relationships it uncovers.
 
-## Table of Contents
+## Project Structure
 
-- [Introduction](#introduction)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Scripts](#scripts)
-- [Dependencies](#dependencies)
-- [License](#license)
+- `app/`: Next.js App Router entry points and global styling.
+- `public/`: Static assets, including the client-side graph/AI logic in `app.js`.
+- `vercel.json`: Security headers for deployments.
 
-## Introduction
+## Prerequisites
 
-DeepGraph is a web application built using Next.js and React. It allows users to transform static research reports into dynamic, interactive knowledge graphs, enhancing the way information is visualized and understood.
+- Node.js 18 or later
+- npm 9 or later
 
-## Installation
+## Getting Started
 
-To get started with DeepGraph, clone the repository and install the dependencies:
+Install dependencies and start the dev server:
 
 ```bash
-git clone <repository-url>
-cd deepgraph
 npm install
+npm run dev
 ```
 
-## Usage
+Then open http://localhost:3000.
 
-To run the application locally, use the following command:
+## Available Scripts
 
-```bash
-npm start
-```
+- `npm run dev` – Start the Next.js dev server.
+- `npm run build` – Create an optimized production build.
+- `npm start` – Run the production server (after `npm run build`).
+- `npm run lint` – Lint the project with Next.js defaults.
 
-This will start the Next.js development server. You can then access the application at `http://localhost:3000`.
+## Deployment
 
-## Scripts
-
-- **start**: Starts the Next.js application.
-- **build**: Builds the application for production.
-
-## Dependencies
-
-- **next**: ^14.1.4
-- **react**: ^18.2.0
-- **react-dom**: ^18.2.0
-- **@vercel/edge**: ^0.1.2
-
-## License
-This project is licensed under the MIT License.
+The app is ready to deploy to Vercel. Security headers are defined in `vercel.json`; adjust them if you need project-specific policies.
