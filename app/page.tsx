@@ -3,7 +3,6 @@ import Script from "next/script";
 export default function HomePage() {
   return (
     <>
-      <Script src="https://cdn.tailwindcss.com" strategy="beforeInteractive" />
       <Script src="https://d3js.org/d3.v7.min.js" strategy="beforeInteractive" />
       <Script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js" strategy="beforeInteractive" />
       <Script src="/app.js" strategy="afterInteractive" type="module" />
