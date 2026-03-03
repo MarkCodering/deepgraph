@@ -2,86 +2,106 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Minimal reset */
-*, *::before, *::after {
+:root {
+  color-scheme: dark;
+}
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
+html,
 body {
   margin: 0;
   padding: 0;
-  min-height: 100vh;
+  min-height: 100%;
 }
 
-/* D3 graph styles */
+body {
+  font-family: "Söhne", "Avenir Next", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(56, 189, 248, 0.12), transparent 35%),
+    radial-gradient(circle at 85% 100%, rgba(16, 185, 129, 0.1), transparent 35%),
+    #07090f;
+}
+
 .link {
-  stroke: #3f3f46;
-  stroke-width: 1px;
+  stroke: rgba(148, 163, 184, 0.32);
+  stroke-width: 1.2px;
+}
+
+.arrowhead {
+  fill: rgba(148, 163, 184, 0.38);
 }
 
 .node circle {
-  fill: #18181b;
-  stroke: #52525b;
+  fill: rgba(2, 6, 23, 0.9);
+  stroke: rgba(125, 211, 252, 0.55);
   stroke-width: 1.5px;
   cursor: pointer;
-  transition: stroke 0.15s;
+  transition: stroke 0.2s ease, transform 0.2s ease;
 }
 
 .node circle:hover {
-  stroke: #fff;
+  stroke: rgba(186, 230, 253, 1);
 }
 
 .node text {
   font-size: 12px;
-  fill: #a1a1aa;
+  fill: rgba(226, 232, 240, 0.9);
   text-anchor: middle;
   pointer-events: none;
 }
 
 .link-label {
   font-size: 10px;
-  fill: #52525b;
+  fill: rgba(148, 163, 184, 0.78);
 }
 
-/* Chat messages */
 .chat-message.user {
-  background: #27272a;
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.32);
   margin-left: auto;
-  max-width: 80%;
+  max-width: 86%;
 }
 
 .chat-message.ai {
-  background: #18181b;
-  max-width: 80%;
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  max-width: 88%;
 }
 
-/* Utility */
 .hidden {
   display: none !important;
 }
 
-/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 8px;
+  height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: #3f3f46;
-  border-radius: 3px;
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 999px;
 }
 
-/* Spinner for loading states */
 .spinner {
-  width: 16px;
-  height: 16px;
-  border: 2px solid #3f3f46;
-  border-top-color: #fff;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(148, 163, 184, 0.35);
+  border-top-color: rgba(186, 230, 253, 1);
   border-radius: 50%;
-  animation: spin 0.6s linear infinite;
+  animation: spin 0.7s linear infinite;
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
