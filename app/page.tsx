@@ -62,6 +62,58 @@ export default function HomePage() {
             >
               Generate a graph to start exploring entities and relationships.
             </p>
+
+            <section
+              id="graphDynamicsPanel"
+              className="absolute left-4 top-4 z-10 w-[min(92vw,300px)] rounded-xl border border-white/10 bg-zinc-950/85 p-4 shadow-xl backdrop-blur-md"
+            >
+              <div className="mb-3 flex items-center justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.14em] text-zinc-500">Graph Dynamics</p>
+                  <p className="text-sm font-medium text-zinc-100">Tune force layout live</p>
+                </div>
+                <button
+                  id="resetDynamicsBtn"
+                  className="rounded-md border border-white/10 px-2 py-1 text-xs text-zinc-300 transition hover:border-white/20 hover:text-zinc-100"
+                >
+                  Reset
+                </button>
+              </div>
+
+              <div className="space-y-3">
+                <label className="block text-xs text-zinc-300">
+                  Link Distance
+                  <span id="linkDistanceValue" className="ml-2 text-zinc-500">
+                    180
+                  </span>
+                  <input id="linkDistanceInput" type="range" min={80} max={320} step={5} defaultValue={180} className="mt-1 w-full" />
+                </label>
+
+                <label className="block text-xs text-zinc-300">
+                  Charge Strength
+                  <span id="chargeStrengthValue" className="ml-2 text-zinc-500">
+                    -430
+                  </span>
+                  <input id="chargeStrengthInput" type="range" min={-1200} max={-80} step={10} defaultValue={-430} className="mt-1 w-full" />
+                </label>
+
+                <label className="block text-xs text-zinc-300">
+                  Collision Radius
+                  <span id="collisionRadiusValue" className="ml-2 text-zinc-500">
+                    34
+                  </span>
+                  <input id="collisionRadiusInput" type="range" min={10} max={90} step={1} defaultValue={34} className="mt-1 w-full" />
+                </label>
+
+                <label className="block text-xs text-zinc-300">
+                  Node Size
+                  <span id="nodeRadiusValue" className="ml-2 text-zinc-500">
+                    19
+                  </span>
+                  <input id="nodeRadiusInput" type="range" min={8} max={34} step={1} defaultValue={19} className="mt-1 w-full" />
+                </label>
+              </div>
+            </section>
           </div>
         </main>
 
@@ -133,9 +185,9 @@ export default function HomePage() {
                       Upload PDF
                     </label>
                     <span id="fileNameDisplay" className="max-w-[62%] truncate text-xs text-zinc-500">
-                      No PDF selected
+                      No PDFs selected
                     </span>
-                    <input type="file" id="pdfUploadInput" accept=".pdf" className="hidden" />
+                    <input type="file" id="pdfUploadInput" accept=".pdf" multiple className="hidden" />
                   </div>
                 </div>
 
@@ -148,23 +200,23 @@ export default function HomePage() {
                       Upload Markdown
                     </label>
                     <span id="markdownFileNameDisplay" className="max-w-[62%] truncate text-xs text-zinc-500">
-                      No Markdown selected
+                      No Markdown files selected
                     </span>
-                    <input type="file" id="markdownUploadInput" accept=".md,.markdown,text/markdown,text/plain" className="hidden" />
+                    <input type="file" id="markdownUploadInput" accept=".md,.markdown,text/markdown,text/plain" multiple className="hidden" />
                   </div>
                 </div>
               </div>
 
               <div className="mt-3 grid gap-2 md:grid-cols-[1fr_auto]">
-                <input
+                <textarea
                   id="youtubeUrlInput"
-                  type="url"
-                  placeholder="YouTube URL (watch, shorts, youtu.be)"
-                  className="w-full rounded-lg border border-white/10 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+                  placeholder="One or more YouTube URLs (comma/newline separated)"
+                  rows={2}
+                  className="w-full resize-y rounded-lg border border-white/10 bg-zinc-900 px-4 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
                 />
                 <button
                   id="loadYoutubeBtn"
-                  className="rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-300/20"
+                  className="self-end rounded-lg border border-emerald-300/30 bg-emerald-300/10 px-4 py-2 text-sm font-medium text-emerald-100 transition hover:bg-emerald-300/20"
                 >
                   Import YouTube
                 </button>
@@ -211,27 +263,51 @@ export default function HomePage() {
           id="chatBotContainer"
           className="hidden fixed bottom-5 right-5 z-40 flex h-[470px] w-[min(92vw,390px)] flex-col overflow-hidden rounded-2xl border border-white/10 bg-zinc-950/95 shadow-2xl shadow-black/45"
         >
-          <div id="chatHeader" className="flex items-center justify-between border-b border-white/10 px-4 py-3 text-sm">
-            <span className="font-medium text-zinc-100">Graph Chat</span>
-            <button id="closeChatBtn" className="text-zinc-500 transition hover:text-zinc-100">
-              ✕
-            </button>
+          <div id="chatHeader" className="border-b border-white/10 px-4 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <p className="text-sm font-medium text-zinc-100">Graph Chat</p>
+                <p className="text-xs text-zinc-500">
+                  Provider:
+                  <span id="chatProviderBadge" className="ml-1 text-cyan-200">
+                    OpenAI
+                  </span>
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  id="clearChatBtn"
+                  className="rounded-md border border-white/10 px-2 py-1 text-xs text-zinc-300 transition hover:border-white/20 hover:text-zinc-100"
+                >
+                  New Chat
+                </button>
+                <button id="closeChatBtn" className="text-zinc-500 transition hover:text-zinc-100">
+                  ✕
+                </button>
+              </div>
+            </div>
           </div>
           <div id="chatHistory" className="flex-1 space-y-3 overflow-y-auto p-4 text-sm">
             <div className="chat-message ai rounded-lg px-3 py-2">
               Ask questions about entities, links, or inferred implications in your graph.
             </div>
           </div>
-          <div id="chatInputContainer" className="flex gap-2 border-t border-white/10 p-3">
-            <input
-              id="chatInput"
-              type="text"
-              placeholder="Ask about the graph..."
-              className="flex-1 rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
-            />
-            <button id="sendChatBtn" className="rounded-lg bg-cyan-300 px-3 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200">
-              Send
-            </button>
+          <div id="chatInputContainer" className="border-t border-white/10 p-3">
+            <div id="chatTypingIndicator" className="mb-2 hidden text-xs text-zinc-500">
+              Thinking...
+            </div>
+            <div className="flex gap-2">
+              <textarea
+                id="chatInput"
+                placeholder="Ask about the graph..."
+                rows={2}
+                className="max-h-28 min-h-[44px] flex-1 resize-y rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
+              />
+              <button id="sendChatBtn" className="self-end rounded-lg bg-cyan-300 px-3 py-2 text-sm font-semibold text-zinc-950 transition hover:bg-cyan-200">
+                Send
+              </button>
+            </div>
+            <p className="mt-2 text-[11px] text-zinc-500">Enter to send, Shift+Enter for a new line.</p>
           </div>
         </div>
 

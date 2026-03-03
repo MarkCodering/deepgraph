@@ -15,6 +15,15 @@ const providerDefaults = {
   gemini: "gemini-2.0-flash",
 };
 
+const graphDynamicsDefaults = {
+  linkDistance: 180,
+  chargeStrength: -430,
+  collisionRadius: 34,
+  nodeRadius: 19,
+};
+
+const graphDynamics = { ...graphDynamicsDefaults };
+
 const providerApiKeyPlaceholders = {
   openai: "OpenAI API Key (sk-...)",
   anthropic: "Anthropic API Key (sk-ant-...)",
@@ -49,6 +58,15 @@ const submitInputBtn = document.getElementById("submitInputBtn");
 const graphContainer = document.getElementById("graphContainer");
 const knowledgeGraphSvg = document.getElementById("knowledgeGraphSvg");
 const graphPlaceholder = document.getElementById("graphPlaceholder");
+const linkDistanceInput = document.getElementById("linkDistanceInput");
+const chargeStrengthInput = document.getElementById("chargeStrengthInput");
+const collisionRadiusInput = document.getElementById("collisionRadiusInput");
+const nodeRadiusInput = document.getElementById("nodeRadiusInput");
+const linkDistanceValue = document.getElementById("linkDistanceValue");
+const chargeStrengthValue = document.getElementById("chargeStrengthValue");
+const collisionRadiusValue = document.getElementById("collisionRadiusValue");
+const nodeRadiusValue = document.getElementById("nodeRadiusValue");
+const resetDynamicsBtn = document.getElementById("resetDynamicsBtn");
 
 const progressBarOverlay = document.getElementById("progressBarOverlay");
 const progressBarFill = document.getElementById("progressBarFill");
@@ -60,6 +78,9 @@ const chatInput = document.getElementById("chatInput");
 const sendChatBtn = document.getElementById("sendChatBtn");
 const toggleChatBtn = document.getElementById("toggleChatBtn");
 const closeChatBtn = document.getElementById("closeChatBtn");
+const clearChatBtn = document.getElementById("clearChatBtn");
+const chatTypingIndicator = document.getElementById("chatTypingIndicator");
+const chatProviderBadge = document.getElementById("chatProviderBadge");
 
 const nodeInfoPopup = document.getElementById("nodeInfoPopup");
 const closeNodeInfoPopupBtn = document.getElementById("closeNodeInfoPopup");
@@ -74,6 +95,7 @@ let progressInterval;
 let width = window.innerWidth;
 let height = window.innerHeight;
 let lastProvider = providerSelect?.value || "openai";
+let chatConversation = [];
 
 const svg = d3.select("#knowledgeGraphSvg").attr("viewBox", [0, 0, width, height]);
 
@@ -95,10 +117,10 @@ const g = svg.append("g");
 
 const simulation = d3
   .forceSimulation()
-  .force("link", d3.forceLink().id((d) => d.id).distance(180))
-  .force("charge", d3.forceManyBody().strength(-430))
+  .force("link", d3.forceLink().id((d) => d.id).distance(graphDynamics.linkDistance))
+  .force("charge", d3.forceManyBody().strength(graphDynamics.chargeStrength))
   .force("center", d3.forceCenter(width / 2, height / 2))
-  .force("collision", d3.forceCollide().radius(34));
+  .force("collision", d3.forceCollide().radius(graphDynamics.collisionRadius));
 
 let link;
 let node;
@@ -179,6 +201,7 @@ function syncProviderFields(forceModelUpdate = false) {
   const previousDefault = providerDefaults[lastProvider];
 
   apiKeyInput.placeholder = providerApiKeyPlaceholders[provider] || "API Key";
+  updateChatProviderBadge(provider);
 
   if (!currentModel || (forceModelUpdate && currentModel === previousDefault)) {
     modelInput.value = providerDefaults[provider];
@@ -200,6 +223,49 @@ function formatProviderName(provider) {
   if (provider === "anthropic") return "Anthropic";
   if (provider === "gemini") return "Gemini";
   return provider;
+}
+
+function updateChatProviderBadge(provider) {
+  if (!chatProviderBadge) return;
+  chatProviderBadge.textContent = formatProviderName(provider);
+}
+
+function syncDynamicsInputsFromState() {
+  linkDistanceInput.value = String(graphDynamics.linkDistance);
+  chargeStrengthInput.value = String(graphDynamics.chargeStrength);
+  collisionRadiusInput.value = String(graphDynamics.collisionRadius);
+  nodeRadiusInput.value = String(graphDynamics.nodeRadius);
+
+  linkDistanceValue.textContent = String(graphDynamics.linkDistance);
+  chargeStrengthValue.textContent = String(graphDynamics.chargeStrength);
+  collisionRadiusValue.textContent = String(graphDynamics.collisionRadius);
+  nodeRadiusValue.textContent = String(graphDynamics.nodeRadius);
+}
+
+function applyGraphDynamics(restart = true) {
+  simulation.force("link").distance(graphDynamics.linkDistance);
+  simulation.force("charge").strength(graphDynamics.chargeStrength);
+  simulation.force("collision").radius(graphDynamics.collisionRadius);
+
+  if (node) {
+    node.select("circle").attr("r", graphDynamics.nodeRadius);
+  }
+
+  if (restart) {
+    simulation.alpha(0.85).restart();
+  }
+}
+
+function resetChatSession() {
+  chatConversation = [];
+  chatHistoryContainer.innerHTML =
+    '<div class="chat-message ai rounded-lg px-3 py-2">Ask questions about entities, links, or inferred implications in your graph.</div>';
+}
+
+function setChatBusy(isBusy) {
+  sendChatBtn.disabled = isBusy;
+  sendChatBtn.textContent = isBusy ? "Sending..." : "Send";
+  chatTypingIndicator.classList.toggle("hidden", !isBusy);
 }
 
 function resizeGraph() {
@@ -253,7 +319,7 @@ function renderGraph(nodes, links) {
         .on("end", dragended),
     );
 
-  node.append("circle").attr("r", 19);
+  node.append("circle").attr("r", graphDynamics.nodeRadius);
 
   node
     .append("text")
@@ -268,6 +334,7 @@ function renderGraph(nodes, links) {
 
   simulation.nodes(nodes).on("tick", ticked);
   simulation.force("link").links(links);
+  applyGraphDynamics(false);
   simulation.alpha(1).restart();
 
   function ticked() {
@@ -604,34 +671,64 @@ async function readMarkdownFile(file) {
   return stripFrontMatter(text).trim();
 }
 
-async function loadYoutubeTranscript() {
-  const url = youtubeUrlInput.value.trim();
+function appendSourceToReport(sourceTitle, sourceText) {
+  const cleanedText = sourceText.trim();
+  if (!cleanedText) {
+    return;
+  }
 
-  if (!url) {
-    showMessageBox("Enter a YouTube URL to import transcript text.");
+  const header = `## Source: ${sourceTitle}`;
+  const block = `${header}\n\n${cleanedText}`;
+  const currentText = reportInput.value.trim();
+  reportInput.value = currentText ? `${currentText}\n\n---\n\n${block}` : block;
+}
+
+function parseYouTubeUrls(rawInput) {
+  const tokens = rawInput
+    .split(/[\n,]+/g)
+    .map((item) => item.trim())
+    .filter(Boolean);
+
+  return [...new Set(tokens)];
+}
+
+async function loadYoutubeTranscript() {
+  const urls = parseYouTubeUrls(youtubeUrlInput.value.trim());
+
+  if (urls.length === 0) {
+    showMessageBox("Enter one or more YouTube URLs to import transcript text.");
     return;
   }
 
   loadYoutubeBtn.disabled = true;
-  loadYoutubeBtn.textContent = "Importing...";
+  loadYoutubeBtn.textContent = "Importing 0/0...";
+  let importedCount = 0;
+  const failedUrls = [];
 
   try {
-    const response = await fetch(`/api/youtube-transcript?url=${encodeURIComponent(url)}`);
-    const result = await response.json();
+    for (let i = 0; i < urls.length; i += 1) {
+      loadYoutubeBtn.textContent = `Importing ${i + 1}/${urls.length}...`;
+      const response = await fetch(`/api/youtube-transcript?url=${encodeURIComponent(urls[i])}`);
+      const result = await response.json();
 
-    if (!response.ok) {
-      throw new Error(result?.error || "Failed to fetch YouTube transcript.");
+      if (!response.ok) {
+        failedUrls.push(urls[i]);
+        continue;
+      }
+
+      const sourceName = result.title ? `YouTube - ${result.title}` : `YouTube - ${result.videoId || urls[i]}`;
+      appendSourceToReport(sourceName, result.transcript || "");
+      importedCount += 1;
     }
 
-    const heading = result.title ? `# ${result.title}\n\n` : "";
-    reportInput.value = `${heading}${result.transcript}`;
+    if (importedCount === 0) {
+      throw new Error("Could not import transcripts from the provided YouTube URLs.");
+    }
 
-    fileNameDisplay.textContent = "No PDF selected";
-    markdownFileNameDisplay.textContent = "No Markdown selected";
-    pdfUploadInput.value = "";
-    markdownUploadInput.value = "";
-
-    showMessageBox(`Imported transcript (${result.language || "auto"}) from YouTube.`);
+    const failSuffix =
+      failedUrls.length > 0 ? ` (${failedUrls.length} failed)` : "";
+    showMessageBox(`Imported ${importedCount} YouTube source(s)${failSuffix}.`);
+    youtubeUrlInput.value = "";
   } catch (error) {
     showMessageBox(error.message || "Failed to import YouTube transcript.");
   } finally {
@@ -668,74 +765,156 @@ providerSelect.addEventListener("change", () => {
   syncProviderFields(true);
 });
 
-pdfUploadInput.addEventListener("change", async (event) => {
-  const file = event.target.files[0];
+function handleDynamicsInput(controlName, value) {
+  graphDynamics[controlName] = Number.parseInt(value, 10);
+  syncDynamicsInputsFromState();
+  applyGraphDynamics(true);
+}
 
-  if (!file) {
-    fileNameDisplay.textContent = "No PDF selected";
+linkDistanceInput.addEventListener("input", (event) => {
+  handleDynamicsInput("linkDistance", event.target.value);
+});
+
+chargeStrengthInput.addEventListener("input", (event) => {
+  handleDynamicsInput("chargeStrength", event.target.value);
+});
+
+collisionRadiusInput.addEventListener("input", (event) => {
+  handleDynamicsInput("collisionRadius", event.target.value);
+});
+
+nodeRadiusInput.addEventListener("input", (event) => {
+  handleDynamicsInput("nodeRadius", event.target.value);
+});
+
+resetDynamicsBtn.addEventListener("click", () => {
+  Object.assign(graphDynamics, graphDynamicsDefaults);
+  syncDynamicsInputsFromState();
+  applyGraphDynamics(true);
+});
+
+function isPdfFile(file) {
+  return file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+}
+
+function isMarkdownFile(file) {
+  const name = file.name.toLowerCase();
+  return (
+    name.endsWith(".md") ||
+    name.endsWith(".markdown") ||
+    file.type === "text/markdown" ||
+    file.type === "text/plain"
+  );
+}
+
+pdfUploadInput.addEventListener("change", async (event) => {
+  const files = Array.from(event.target.files || []);
+
+  if (files.length === 0) {
+    fileNameDisplay.textContent = "No PDFs selected";
     return;
   }
 
-  if (file.type !== "application/pdf") {
-    showMessageBox("Please upload a valid PDF file.");
-    fileNameDisplay.textContent = "No PDF selected";
+  const validFiles = files.filter(isPdfFile);
+  const skippedCount = files.length - validFiles.length;
+  fileNameDisplay.textContent = `${validFiles.length} PDF file(s) selected`;
+
+  if (validFiles.length === 0) {
+    showMessageBox("No valid PDFs were selected.");
+    fileNameDisplay.textContent = "No PDFs selected";
     pdfUploadInput.value = "";
     return;
   }
 
-  fileNameDisplay.textContent = file.name;
+  let importedCount = 0;
+  const failedFiles = [];
 
-  try {
-    reportInput.value = "Extracting PDF text...";
-    const extractedText = await readPdfFile(file);
+  for (const file of validFiles) {
+    try {
+      const extractedText = await readPdfFile(file);
 
-    if (!extractedText) {
-      throw new Error("No text was found in this PDF.");
+      if (!extractedText) {
+        failedFiles.push(file.name);
+        continue;
+      }
+
+      appendSourceToReport(`PDF - ${file.name}`, extractedText);
+      importedCount += 1;
+    } catch (_) {
+      failedFiles.push(file.name);
     }
-
-    reportInput.value = extractedText;
-    markdownUploadInput.value = "";
-    markdownFileNameDisplay.textContent = "No Markdown selected";
-    showMessageBox("PDF loaded. You can now generate a graph.");
-  } catch (error) {
-    reportInput.value = "";
-    showMessageBox(error.message || "Failed to process PDF.");
   }
+
+  const details = [];
+  if (importedCount === 0) {
+    details.push("No PDF text could be extracted");
+  } else {
+    details.push(`Imported ${importedCount}/${validFiles.length} PDF file(s)`);
+  }
+  if (failedFiles.length > 0) {
+    details.push(`${failedFiles.length} failed`);
+  }
+  if (skippedCount > 0) {
+    details.push(`${skippedCount} skipped (invalid type)`);
+  }
+
+  showMessageBox(`${details.join(", ")}.`);
+  pdfUploadInput.value = "";
 });
 
 markdownUploadInput.addEventListener("change", async (event) => {
-  const file = event.target.files[0];
+  const files = Array.from(event.target.files || []);
 
-  if (!file) {
-    markdownFileNameDisplay.textContent = "No Markdown selected";
+  if (files.length === 0) {
+    markdownFileNameDisplay.textContent = "No Markdown files selected";
     return;
   }
 
-  const fileNameLower = file.name.toLowerCase();
-  if (!fileNameLower.endsWith(".md") && !fileNameLower.endsWith(".markdown") && file.type !== "text/markdown" && file.type !== "text/plain") {
-    showMessageBox("Please upload a Markdown file (.md or .markdown).");
-    markdownFileNameDisplay.textContent = "No Markdown selected";
+  const validFiles = files.filter(isMarkdownFile);
+  const skippedCount = files.length - validFiles.length;
+  markdownFileNameDisplay.textContent = `${validFiles.length} Markdown file(s) selected`;
+
+  if (validFiles.length === 0) {
+    showMessageBox("No valid Markdown files were selected.");
+    markdownFileNameDisplay.textContent = "No Markdown files selected";
     markdownUploadInput.value = "";
     return;
   }
 
-  markdownFileNameDisplay.textContent = file.name;
+  let importedCount = 0;
+  const failedFiles = [];
 
-  try {
-    const markdownText = await readMarkdownFile(file);
+  for (const file of validFiles) {
+    try {
+      const markdownText = await readMarkdownFile(file);
 
-    if (!markdownText) {
-      throw new Error("The Markdown file is empty.");
+      if (!markdownText) {
+        failedFiles.push(file.name);
+        continue;
+      }
+
+      appendSourceToReport(`Markdown - ${file.name}`, markdownText);
+      importedCount += 1;
+    } catch (_) {
+      failedFiles.push(file.name);
     }
-
-    reportInput.value = markdownText;
-    pdfUploadInput.value = "";
-    fileNameDisplay.textContent = "No PDF selected";
-    showMessageBox("Markdown loaded. You can now generate a graph.");
-  } catch (error) {
-    reportInput.value = "";
-    showMessageBox(error.message || "Failed to read Markdown file.");
   }
+
+  const details = [];
+  if (importedCount === 0) {
+    details.push("No Markdown content could be extracted");
+  } else {
+    details.push(`Imported ${importedCount}/${validFiles.length} Markdown file(s)`);
+  }
+  if (failedFiles.length > 0) {
+    details.push(`${failedFiles.length} failed`);
+  }
+  if (skippedCount > 0) {
+    details.push(`${skippedCount} skipped (invalid type)`);
+  }
+
+  showMessageBox(`${details.join(", ")}.`);
+  markdownUploadInput.value = "";
 });
 
 loadYoutubeBtn.addEventListener("click", async () => {
@@ -773,6 +952,7 @@ submitInputBtn.addEventListener("click", async () => {
 
     const graphData = parseGraphDataFromModel(rawGraphResponse);
     renderGraph(graphData.nodes, graphData.links);
+    resetChatSession();
   } catch (error) {
     graphPlaceholder.classList.remove("hidden");
     showMessageBox(error.message || "Graph generation failed.");
@@ -800,6 +980,11 @@ closeChatBtn.addEventListener("click", () => {
   toggleChatBtn.classList.remove("hidden");
 });
 
+clearChatBtn.addEventListener("click", () => {
+  resetChatSession();
+  chatInput.value = "";
+});
+
 sendChatBtn.addEventListener("click", async () => {
   const question = chatInput.value.trim();
   if (!question) return;
@@ -817,24 +1002,33 @@ sendChatBtn.addEventListener("click", async () => {
   }
 
   appendChatMessage("user", question);
+  chatConversation.push({ role: "user", content: question });
   chatInput.value = "";
-  sendChatBtn.disabled = true;
+  setChatBusy(true);
 
   try {
     const graphJson = JSON.stringify({ nodes: currentGraphNodes, links: currentGraphLinks });
+    const recentConversation = chatConversation
+      .slice(-8)
+      .map((turn) => `${turn.role === "user" ? "User" : "Assistant"}: ${turn.content}`)
+      .join("\n");
+
     const answer = await requestLLM({
       provider,
       apiKey,
       model,
-      systemPrompt: "You are a graph assistant. Use only the provided graph data. If data is missing, say you don't have enough information.",
-      userPrompt: `Knowledge graph JSON:\n${graphJson}\n\nQuestion: ${question}`,
+      systemPrompt:
+        "You are a graph assistant in a research workspace. Use only the provided graph data. Be concise, directly answer the question, and say when information is missing.",
+      userPrompt: `Knowledge graph JSON:\n${graphJson}\n\nConversation so far:\n${recentConversation}\n\nRespond to the latest user question in clear, practical language.`,
     });
 
-    appendChatMessage("ai", answer || "Could not generate an answer.");
+    const safeAnswer = answer || "Could not generate an answer.";
+    chatConversation.push({ role: "assistant", content: safeAnswer });
+    appendChatMessage("ai", safeAnswer);
   } catch (error) {
     appendChatMessage("ai", `Error: ${error.message || "Request failed."}`);
   } finally {
-    sendChatBtn.disabled = false;
+    setChatBusy(false);
   }
 });
 
@@ -900,4 +1094,8 @@ svg.on("click", () => {
 window.addEventListener("resize", resizeGraph);
 
 syncProviderFields(false);
+syncDynamicsInputsFromState();
+applyGraphDynamics(false);
+resetChatSession();
+setChatBusy(false);
 resizeGraph();
