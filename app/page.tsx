@@ -299,7 +299,7 @@ export default function HomePage() {
             <div className="flex gap-2">
               <textarea
                 id="chatInput"
-                placeholder="Ask about the graph..."
+                placeholder="Ask about the graph or type /help..."
                 rows={2}
                 className="max-h-28 min-h-[44px] flex-1 resize-y rounded-lg border border-white/10 bg-zinc-900 px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-2 focus:ring-cyan-300/40"
               />
@@ -307,7 +307,7 @@ export default function HomePage() {
                 Send
               </button>
             </div>
-            <p className="mt-2 text-[11px] text-zinc-500">Enter to send, Shift+Enter for a new line.</p>
+            <p className="mt-2 text-[11px] text-zinc-500">Enter to send, Shift+Enter for a new line, Cmd/Ctrl+K to open chat.</p>
           </div>
         </div>
 

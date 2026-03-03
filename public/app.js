@@ -96,6 +96,8 @@ let width = window.innerWidth;
 let height = window.innerHeight;
 let lastProvider = providerSelect?.value || "openai";
 let chatConversation = [];
+let graphAnimationInterval = null;
+let graphAnimationCursor = 0;
 
 const svg = d3.select("#knowledgeGraphSvg").attr("viewBox", [0, 0, width, height]);
 
@@ -259,13 +261,223 @@ function applyGraphDynamics(restart = true) {
 function resetChatSession() {
   chatConversation = [];
   chatHistoryContainer.innerHTML =
-    '<div class="chat-message ai rounded-lg px-3 py-2">Ask questions about entities, links, or inferred implications in your graph.</div>';
+    '<div class="chat-message ai rounded-lg px-3 py-2">Ask questions about entities, links, or inferred implications in your graph. Commands: /help, /navigate, /animate, /summarize.</div>';
 }
 
 function setChatBusy(isBusy) {
   sendChatBtn.disabled = isBusy;
   sendChatBtn.textContent = isBusy ? "Sending..." : "Send";
   chatTypingIndicator.classList.toggle("hidden", !isBusy);
+}
+
+function openChatInterface() {
+  chatBotContainer.classList.remove("hidden");
+  toggleChatBtn.classList.add("hidden");
+  chatInput.focus();
+}
+
+function getNodeMatches(query) {
+  const normalizedQuery = query.toLowerCase().trim();
+  if (!normalizedQuery) {
+    return [];
+  }
+
+  const exact = currentGraphNodes.filter((nodeItem) => {
+    const id = String(nodeItem.id || "").toLowerCase();
+    const label = String(nodeItem.label || "").toLowerCase();
+    return id === normalizedQuery || label === normalizedQuery;
+  });
+
+  if (exact.length > 0) {
+    return exact;
+  }
+
+  return currentGraphNodes.filter((nodeItem) => {
+    const id = String(nodeItem.id || "").toLowerCase();
+    const label = String(nodeItem.label || "").toLowerCase();
+    return id.includes(normalizedQuery) || label.includes(normalizedQuery);
+  });
+}
+
+function zoomToNode(nodeItem, duration = 650) {
+  const x = Number.isFinite(nodeItem.x) ? nodeItem.x : width / 2;
+  const y = Number.isFinite(nodeItem.y) ? nodeItem.y : height / 2;
+  const currentTransform = d3.zoomTransform(svg.node());
+  const nextScale = Math.max(1.15, Math.min(2.4, currentTransform.k || 1.2));
+
+  const transform = d3.zoomIdentity.translate(width / 2 - x * nextScale, height / 2 - y * nextScale).scale(nextScale);
+  svg.transition().duration(duration).call(zoom.transform, transform);
+}
+
+function stopGraphAnimation() {
+  if (graphAnimationInterval) {
+    clearInterval(graphAnimationInterval);
+    graphAnimationInterval = null;
+  }
+}
+
+function buildLocalGraphSummary() {
+  const nodeCount = currentGraphNodes.length;
+  const linkCount = currentGraphLinks.length;
+  const degreeMap = new Map();
+
+  currentGraphNodes.forEach((nodeItem) => {
+    degreeMap.set(nodeItem.id, 0);
+  });
+
+  currentGraphLinks.forEach((linkItem) => {
+    const sourceId = typeof linkItem.source === "object" ? linkItem.source.id : linkItem.source;
+    const targetId = typeof linkItem.target === "object" ? linkItem.target.id : linkItem.target;
+    degreeMap.set(sourceId, (degreeMap.get(sourceId) || 0) + 1);
+    degreeMap.set(targetId, (degreeMap.get(targetId) || 0) + 1);
+  });
+
+  const topConnected = currentGraphNodes
+    .map((nodeItem) => ({
+      label: nodeItem.label,
+      degree: degreeMap.get(nodeItem.id) || 0,
+    }))
+    .sort((a, b) => b.degree - a.degree)
+    .slice(0, 5)
+    .filter((item) => item.degree > 0);
+
+  const topText =
+    topConnected.length > 0
+      ? topConnected.map((item) => `${item.label} (${item.degree})`).join(", ")
+      : "No strongly connected nodes yet.";
+
+  return `Graph contains ${nodeCount} nodes and ${linkCount} links. Most connected: ${topText}`;
+}
+
+async function handleNavigateCommand(commandArgs) {
+  if (currentGraphNodes.length === 0) {
+    return "Generate a graph first.";
+  }
+
+  if (!commandArgs) {
+    return "Usage: /navigate <node label or id>";
+  }
+
+  const matches = getNodeMatches(commandArgs);
+  if (matches.length === 0) {
+    return `No node found for "${commandArgs}".`;
+  }
+
+  if (matches.length > 1) {
+    const sample = matches
+      .slice(0, 5)
+      .map((item) => item.label)
+      .join(", ");
+    return `Multiple matches: ${sample}. Try a more specific query.`;
+  }
+
+  const selectedNode = matches[0];
+  const safeX = Number.isFinite(selectedNode.x) ? selectedNode.x : width / 2;
+  const safeY = Number.isFinite(selectedNode.y) ? selectedNode.y : height / 2;
+  selectedNode.x = safeX;
+  selectedNode.y = safeY;
+
+  zoomToNode(selectedNode);
+  await showNodeInfoPopup(selectedNode.label, safeX, safeY);
+  return `Navigated to "${selectedNode.label}".`;
+}
+
+function handleAnimateCommand(commandArgs) {
+  if (currentGraphNodes.length === 0) {
+    return "Generate a graph first.";
+  }
+
+  const mode = (commandArgs || "").toLowerCase().trim();
+
+  if (mode === "stop") {
+    stopGraphAnimation();
+    return "Graph animation stopped.";
+  }
+
+  if (mode === "pulse") {
+    simulation.alpha(1).restart();
+    return "Graph force simulation pulsed.";
+  }
+
+  if (mode === "start" || mode === "" || mode === "tour") {
+    stopGraphAnimation();
+    graphAnimationCursor = 0;
+    graphAnimationInterval = setInterval(() => {
+      if (currentGraphNodes.length === 0) {
+        stopGraphAnimation();
+        return;
+      }
+
+      const currentNode = currentGraphNodes[graphAnimationCursor % currentGraphNodes.length];
+      graphAnimationCursor += 1;
+      zoomToNode(currentNode, 500);
+    }, 2000);
+    return "Graph animation started. Use /animate stop to stop.";
+  }
+
+  return "Usage: /animate [start|stop|pulse]";
+}
+
+async function handleSummarizeCommand(commandArgs) {
+  if (currentGraphNodes.length === 0) {
+    return "Generate a graph first.";
+  }
+
+  const { provider, model, apiKey } = getProviderConfig();
+  const graphJson = JSON.stringify({ nodes: currentGraphNodes, links: currentGraphLinks });
+
+  if (!apiKey) {
+    return `${buildLocalGraphSummary()} Add an API key for deeper AI summarization.`;
+  }
+
+  try {
+    const userPrompt = commandArgs
+      ? `Summarize this graph with focus on "${commandArgs}". Include key nodes, links, and insights.\n\nGraph JSON:\n${graphJson}`
+      : `Summarize the most important structures and insights in this graph in 5-7 bullet points.\n\nGraph JSON:\n${graphJson}`;
+
+    const summary = await requestLLM({
+      provider,
+      apiKey,
+      model,
+      systemPrompt:
+        "You are a graph analyst. Provide concise, high-signal summaries grounded only in the provided graph.",
+      userPrompt,
+    });
+
+    return summary || "Could not generate summary.";
+  } catch (error) {
+    return `Summary failed: ${error.message || "request failed"}.`;
+  }
+}
+
+async function executeSlashCommand(rawCommand) {
+  const trimmed = rawCommand.trim();
+  if (!trimmed.startsWith("/")) {
+    return null;
+  }
+
+  const commandLine = trimmed.slice(1).trim();
+  const [commandName, ...restParts] = commandLine.split(/\s+/);
+  const args = restParts.join(" ").trim();
+  const command = (commandName || "").toLowerCase();
+
+  if (!command || command === "help" || command === "commands") {
+    return "Commands:\n/navigate <node>\n/animate [start|stop|pulse]\n/summarize [focus topic]\n/help";
+  }
+
+  if (command === "navigate") {
+    return handleNavigateCommand(args);
+  }
+
+  if (command === "animate") {
+    return handleAnimateCommand(args);
+  }
+
+  if (command === "summarize" || command === "summary") {
+    return handleSummarizeCommand(args);
+  }
+
+  return `Unknown command: /${command}. Use /help.`;
 }
 
 function resizeGraph() {
@@ -970,8 +1182,7 @@ toggleChatBtn.addEventListener("click", () => {
     chatBotContainer.classList.add("hidden");
     toggleChatBtn.classList.remove("hidden");
   } else {
-    chatBotContainer.classList.remove("hidden");
-    toggleChatBtn.classList.add("hidden");
+    openChatInterface();
   }
 });
 
@@ -989,9 +1200,26 @@ sendChatBtn.addEventListener("click", async () => {
   const question = chatInput.value.trim();
   if (!question) return;
 
+  appendChatMessage("user", question);
+  chatInput.value = "";
+
+  if (question.startsWith("/")) {
+    setChatBusy(true);
+
+    try {
+      const commandResponse = await executeSlashCommand(question);
+      appendChatMessage("ai", commandResponse || "Command executed.");
+    } catch (error) {
+      appendChatMessage("ai", `Command failed: ${error.message || "request failed"}.`);
+    } finally {
+      setChatBusy(false);
+    }
+
+    return;
+  }
+
   if (currentGraphNodes.length === 0 || currentGraphLinks.length === 0) {
     showMessageBox("Generate a graph first.");
-    chatInput.value = "";
     return;
   }
 
@@ -1001,9 +1229,7 @@ sendChatBtn.addEventListener("click", async () => {
     return;
   }
 
-  appendChatMessage("user", question);
   chatConversation.push({ role: "user", content: question });
-  chatInput.value = "";
   setChatBusy(true);
 
   try {
@@ -1037,6 +1263,17 @@ chatInput.addEventListener("keydown", (event) => {
     event.preventDefault();
     sendChatBtn.click();
   }
+});
+
+document.addEventListener("keydown", (event) => {
+  const isCommandPaletteShortcut = (event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k";
+
+  if (!isCommandPaletteShortcut) {
+    return;
+  }
+
+  event.preventDefault();
+  openChatInterface();
 });
 
 async function showNodeInfoPopup(nodeLabel, nodeX, nodeY) {
