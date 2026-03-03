@@ -6,6 +6,12 @@ type CaptionTrack = {
   kind?: string;
 };
 
+type TimedTextTrack = {
+  langCode: string;
+  kind?: string;
+  name?: string;
+};
+
 function extractVideoId(rawInput: string): string | null {
   try {
     const input = rawInput.trim();
@@ -142,6 +148,55 @@ function decodeHtmlEntities(text: string): string {
     .replace(/&#x([0-9a-fA-F]+);/g, (_full, code) => String.fromCodePoint(Number.parseInt(code, 16)));
 }
 
+function parseTrackAttributes(rawAttributes: string): Record<string, string> {
+  const attributes: Record<string, string> = {};
+  const attributeRegex = /([a-zA-Z0-9_:-]+)="([^"]*)"/g;
+  let match: RegExpExecArray | null = attributeRegex.exec(rawAttributes);
+
+  while (match) {
+    attributes[match[1]] = decodeHtmlEntities(match[2]);
+    match = attributeRegex.exec(rawAttributes);
+  }
+
+  return attributes;
+}
+
+function parseTimedTextTrackList(xmlText: string): TimedTextTrack[] {
+  const tracks: TimedTextTrack[] = [];
+  const trackRegex = /<track\b([^>]*)\/?>/g;
+  let match: RegExpExecArray | null = trackRegex.exec(xmlText);
+
+  while (match) {
+    const attributes = parseTrackAttributes(match[1] || "");
+    const langCode = attributes.lang_code || attributes.lang;
+
+    if (langCode) {
+      tracks.push({
+        langCode,
+        kind: attributes.kind,
+        name: attributes.name,
+      });
+    }
+
+    match = trackRegex.exec(xmlText);
+  }
+
+  return tracks;
+}
+
+function selectTimedTextTrack(tracks: TimedTextTrack[]): TimedTextTrack | null {
+  if (tracks.length === 0) {
+    return null;
+  }
+
+  return (
+    tracks.find((track) => track.langCode === "en" && track.kind !== "asr") ||
+    tracks.find((track) => track.langCode.startsWith("en")) ||
+    tracks.find((track) => track.kind !== "asr") ||
+    tracks[0]
+  );
+}
+
 function parseXmlTranscript(xmlText: string): string {
   const regex = /<text\b[^>]*>([\s\S]*?)<\/text>/g;
   const parts: string[] = [];
@@ -233,6 +288,75 @@ async function fetchTranscriptFromTrack(track: CaptionTrack): Promise<string> {
   throw new Error("Could not parse transcript payload.");
 }
 
+async function fetchTranscriptFromTimedTextApi(videoId: string): Promise<{ transcript: string; language: string } | null> {
+  const listResponse = await fetch(`https://video.google.com/timedtext?type=list&v=${encodeURIComponent(videoId)}`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+    cache: "no-store",
+  });
+
+  if (!listResponse.ok) {
+    return null;
+  }
+
+  const listXml = await listResponse.text();
+  if (!listXml || !listXml.includes("<track")) {
+    return null;
+  }
+
+  const tracks = parseTimedTextTrackList(listXml);
+  const selectedTrack = selectTimedTextTrack(tracks);
+  if (!selectedTrack) {
+    return null;
+  }
+
+  const transcriptParams = new URLSearchParams({
+    v: videoId,
+    lang: selectedTrack.langCode,
+  });
+
+  if (selectedTrack.kind) {
+    transcriptParams.set("kind", selectedTrack.kind);
+  }
+
+  if (selectedTrack.name) {
+    transcriptParams.set("name", selectedTrack.name);
+  }
+
+  transcriptParams.set("fmt", "json3");
+
+  const transcriptResponse = await fetch(`https://video.google.com/timedtext?${transcriptParams.toString()}`, {
+    headers: {
+      "User-Agent": "Mozilla/5.0",
+      "Accept-Language": "en-US,en;q=0.9",
+    },
+    cache: "no-store",
+  });
+
+  if (!transcriptResponse.ok) {
+    return null;
+  }
+
+  const transcriptBody = await transcriptResponse.text();
+  if (!transcriptBody) {
+    return null;
+  }
+
+  const parsedJson3 = parseJson3Transcript(transcriptBody);
+  if (parsedJson3) {
+    return { transcript: parsedJson3, language: selectedTrack.langCode };
+  }
+
+  const parsedXml = parseXmlTranscript(transcriptBody);
+  if (parsedXml) {
+    return { transcript: parsedXml, language: selectedTrack.langCode };
+  }
+
+  return null;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const rawUrl = searchParams.get("url") || "";
@@ -243,47 +367,78 @@ export async function GET(request: Request) {
   }
 
   try {
-    const watchResponse = await fetch(`https://www.youtube.com/watch?v=${videoId}&hl=en`, {
-      headers: {
-        "User-Agent": "Mozilla/5.0",
-        "Accept-Language": "en-US,en;q=0.9",
-      },
-      cache: "no-store",
-    });
+    let title = "YouTube Video";
+    let captions: CaptionTrack[] = [];
 
-    if (!watchResponse.ok) {
-      return NextResponse.json({ error: "Unable to fetch YouTube video page." }, { status: 502 });
+    const metadataUrls = [
+      `https://www.youtube.com/watch?v=${videoId}&hl=en`,
+      `https://www.youtube.com/embed/${videoId}`,
+    ];
+
+    for (const metadataUrl of metadataUrls) {
+      const pageResponse = await fetch(metadataUrl, {
+        headers: {
+          "User-Agent": "Mozilla/5.0",
+          "Accept-Language": "en-US,en;q=0.9",
+        },
+        cache: "no-store",
+      });
+
+      if (!pageResponse.ok) {
+        continue;
+      }
+
+      const pageHtml = await pageResponse.text();
+      const playerResponse = extractPlayerResponse(pageHtml);
+
+      if (!playerResponse) {
+        continue;
+      }
+
+      const extractedCaptions =
+        ((playerResponse.captions as { playerCaptionsTracklistRenderer?: { captionTracks?: CaptionTrack[] } } | undefined)
+          ?.playerCaptionsTracklistRenderer?.captionTracks as CaptionTrack[] | undefined) || [];
+
+      const extractedTitle = (playerResponse.videoDetails as { title?: string } | undefined)?.title;
+      if (extractedTitle) {
+        title = extractedTitle;
+      }
+
+      if (extractedCaptions.length > 0) {
+        captions = extractedCaptions;
+        break;
+      }
     }
 
-    const watchHtml = await watchResponse.text();
-    const playerResponse = extractPlayerResponse(watchHtml);
-
-    if (!playerResponse) {
-      return NextResponse.json({ error: "Unable to parse YouTube player metadata." }, { status: 502 });
-    }
-
-    const captions =
-      ((playerResponse.captions as { playerCaptionsTracklistRenderer?: { captionTracks?: CaptionTrack[] } } | undefined)
-        ?.playerCaptionsTracklistRenderer?.captionTracks as CaptionTrack[] | undefined) || [];
-
+    let transcript = "";
+    let transcriptLanguage = "unknown";
     const selectedTrack = selectCaptionTrack(captions);
-    if (!selectedTrack) {
-      return NextResponse.json({ error: "No captions found for this video." }, { status: 422 });
+
+    if (selectedTrack) {
+      try {
+        transcript = await fetchTranscriptFromTrack(selectedTrack);
+        transcriptLanguage = selectedTrack.languageCode || "unknown";
+      } catch {
+        transcript = "";
+      }
     }
 
-    const transcript = await fetchTranscriptFromTrack(selectedTrack);
     if (!transcript) {
-      return NextResponse.json({ error: "Transcript exists but contains no text." }, { status: 422 });
+      const timedTextFallback = await fetchTranscriptFromTimedTextApi(videoId);
+      if (timedTextFallback) {
+        transcript = timedTextFallback.transcript;
+        transcriptLanguage = timedTextFallback.language;
+      }
     }
 
-    const title =
-      (playerResponse.videoDetails as { title?: string } | undefined)?.title ||
-      "YouTube Video";
+    if (!transcript) {
+      return NextResponse.json({ error: "No transcript available for this video (captions missing or inaccessible)." }, { status: 422 });
+    }
 
     return NextResponse.json({
       videoId,
       title,
-      language: selectedTrack.languageCode || "unknown",
+      language: transcriptLanguage,
       transcript,
     });
   } catch (error) {

@@ -915,7 +915,7 @@ async function loadYoutubeTranscript() {
   loadYoutubeBtn.disabled = true;
   loadYoutubeBtn.textContent = "Importing 0/0...";
   let importedCount = 0;
-  const failedUrls = [];
+  const failedImports = [];
 
   try {
     for (let i = 0; i < urls.length; i += 1) {
@@ -924,7 +924,10 @@ async function loadYoutubeTranscript() {
       const result = await response.json();
 
       if (!response.ok) {
-        failedUrls.push(urls[i]);
+        failedImports.push({
+          url: urls[i],
+          error: result?.error || "Unknown error",
+        });
         continue;
       }
 
@@ -934,12 +937,15 @@ async function loadYoutubeTranscript() {
     }
 
     if (importedCount === 0) {
-      throw new Error("Could not import transcripts from the provided YouTube URLs.");
+      const firstFailure = failedImports[0];
+      const firstFailureText = firstFailure ? ` First error: ${firstFailure.error}` : "";
+      throw new Error(`Could not import transcripts from the provided YouTube URLs.${firstFailureText}`);
     }
 
-    const failSuffix =
-      failedUrls.length > 0 ? ` (${failedUrls.length} failed)` : "";
-    showMessageBox(`Imported ${importedCount} YouTube source(s)${failSuffix}.`);
+    const failSuffix = failedImports.length > 0 ? ` (${failedImports.length} failed)` : "";
+    const failDetail =
+      failedImports.length > 0 ? ` Example: ${failedImports[0].url} -> ${failedImports[0].error}` : "";
+    showMessageBox(`Imported ${importedCount} YouTube source(s)${failSuffix}.${failDetail}`);
     youtubeUrlInput.value = "";
   } catch (error) {
     showMessageBox(error.message || "Failed to import YouTube transcript.");
